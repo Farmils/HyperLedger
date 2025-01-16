@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Users.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Users.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @author Farmils
+ */
+"use strict";
+class Users extends Contract {
+  /**
+   * Конструктор служит, для объявления названия контракта,
+   * если не использовать его, то название контракта === название класса
+   * пишется как конструктор в solidity
+   * @constructor
+   */
+  constructor() {
+    super("Users");
+  }
+  /**
+   * Метод, для добавления в реестр информации при старте системы,
+   * можно представить, как конструктор, который закидывает информацию в массив,
+   * при старте системы
+   * В данном случае мы инициализируем пользователей при старте системы, а так же
+   * Базу водительских удостоверений, чтобы далее можно было сравнивать данные которые, вносит
+   * пользователь и, которые хранятся в системе
+   * @param {ctx} ctx - Параметр, для получения данных о пользователе, должен быть первым, а так же должен быть у всех методов
+   */
+  async InitLedger(ctx) {
+    const Drivers = [
+      {
+        FIO: "Иванов Иван Иванович",
+        UserAddress: "address1",
+        StartDrive: 2023,
+        CountForfeit: 0,
+        Role: "Police",
+        Balance: 50,
+      },
+      {
+        FIO: "Семёнов Семен Семенович",
+        UserAddress: "address2",
+        StartDrive: 2020,
+        CountForfeit: 0,
+        Role: "Driver",
+        Balance: 50,
+      },
+      {
+        FIO: "Петров Петр Петрович",
+        UserAddress: "address3",
+        StartDrive: 2015,
+        CountForfeit: 0,
+        Role: "Driver",
+        Balance: 50,
+      },
+      {
+        FIO: "BANK",
+        UserAddress: "address0",
+        Balance: 1000,
+        Role: "Bank",
+      },
+    ];
+    for (const driver of Drivers) {
+      driver.docType = "driver";
+      await ctx.stub.putState(
+        driver.UserAddress,
+        Buffer.from(JSON.stringify(driver))
+      );
+    }
+    const DriverLicenses = [
+      {
+        ID: "000",
+        SerivceLife: "11.01.2021",
+        Category: "A",
+        UserAddress: "",
+      },
+      {
+        ID: "111",
+        SerivceLife: "12.05.2025",
+        Category: "B",
+        UserAddress: "",
+      },
+      {
+        ID: "222",
+        SerivceLife: "09.09.2020",
+        Category: "C",
+        UserAddress: "",
+      },
+      {
+        ID: "333",
+        SerivceLife: "13.02.2027",
+        Category: "A",
+        UserAddress: "",
+      },
+      {
+        ID: "444",
+        SerivceLife: "10.09.2020",
+        Category: "B",
+        UserAddress: "",
+      },
+      {
+        ID: "555",
+        SerivceLife: "24.06.2029",
+        Category: "C",
+        UserAddress: "",
+      },
+      {
+        ID: "666",
+        SerivceLife: "31.03.2030",
+        Category: "A",
+        UserAddress: "",
+      },
+    ];
+    for (const driverLicense of DriverLicenses) {
+      driverLicense.docType = "driverLicense";
+      await ctx.stub.putState(
+        driverLicense.ID,
+        Buffer.from(JSON.stringify(driverLicense))
+      );
+    }
+  }
+  /**
+   * Метод, для добавления пользователя в систему,
+   * путём записи данных в объект, с последующим его преобразованием в JSON
+   * и отправление его в систему через хук putState(ключ(к примеруID),Buffer.from(JSON-объект))
+   * @param {ctx} ctx -для получения информации о пользователе, системный параметр
+   * @param {address} userAddress - адрес пользователя
+   * @param {string} fio - ФИО
+   * @param {date} startDrive - дата начала вождения
+   * @param {int} countForfeit - количество неоплаченных штрафов
+   * @param {int} balance - баланс пользоватея
+   */
+  async Registration(ctx, userAddress, fio, startDrive, countForfeit, balance) {
+    const exist = await this.UserExists(ctx, userAddress);
+    if (exist) {
+      throw new Error(
+        `Пользователь с таким id: ${userAddress}, зарегистрирован в системе`
+      );
+    }
+    const user = {
+      FIO: fio,
+      StartDrive: startDrive,
+      CountForfeit: countForfeit,
+      Balance: balance,
+      UserAddress: userAddress,
+    };
+    const strigifiedUser = JSON.stringify(user);
+    await ctx.stub.putState(userAddress, Buffer.from(strigifiedUser));
+    return strigifiedUser;
+  }
+  /**
+   * Метод, для проверки на наличие пользователя в системе
+   * @param {ctx} ctx - информация о пользователе, системный параметр
+   * @param {address} userAddress- адрес пользователя
+   */
+  async UserExists(ctx, userAddress) {
+    const userJSON = await ctx.stub.getState(userAddress);
+    return userJSON &amp;&amp; userJSON.length > 0;
+  }
+
+  /**
+   * Метод для добавления Водительского удостоверения
+   * @param {ctx} ctx - информация о пользователе, системный параметр
+   * @param {int} licenseId - ID водительского удостоверения
+   * @param {address} userAddress -  адрес  пользователя
+   * @param {date}serivceLife - срок действия В/У
+   * @param {string} category - категория В/У
+   * @returns {JSON} stringifyLicense - информация о В/У
+   */
+  async AddDriverLicense(ctx, licenseId, userAddress, serivceLife, category) {
+    const exist = await this.DriverLicenseExists(ctx, id);
+    if (exist) {
+      const license = {
+        ID: id.toString(),
+        SerivceLife: serivceLife.toString(),
+        Category: category.toString(),
+        UserAddress: userAddress.toString(),
+      };
+      const stringifyLicense = JSON.stringify(license);
+      await ctx.stub.putState(id, Buffer.from(stringifyLicense));
+      return stringifyLicense;
+    }
+    throw new Error(`Такого водительского удостоверения нет в базе данных`);
+  }
+  /**
+   * Метод для проверки на наличие В/У удостоверения в системе
+   * @param {ctx} ctx - информация о пользователе, системный параметр
+   * @param {int} licenseId -  ID водительского удостоверения
+   */
+  async DriverLicenseExists(ctx, licenseId) {
+    const licenseJSON = await ctx.stub.getState(id);
+    return licenseJSON &amp;&amp; licenseJSON.length > 0;
+  }
+
+  /**
+   * Метод для регистрации Транспортного средства,
+   * по средству проверки категории В/У и категории Т/С
+   * @param {ctx} ctx - информация о пользователе, системный параметр
+   * @param {int} carId  - ID машины
+   * @param {address} userAddress - адрес пользователя
+   * @param {string} carCategory  - категория автомобиля
+   * @param {int} price - рыночная стоимость автомобиля
+   * @param {date} serivceLife - срок эксплуатации
+   * @returns {JSON} stringfyCar- информация о машине
+   */
+  async AddCar(ctx, carId, userAddress, carCategory, price, serivceLife) {
+    const licenseCategory = await this.GetLicenseCategory(ctx, userAddress);
+    if (licenseCategory === carCategory) {
+      const car = {
+        CarID: carId.toString(),
+        SerivceLife: serivceLife,
+        CarCategory: carCategory,
+        Price: price,
+        Owner: userAddress,
+      };
+      const stringfyCar = JSON.stringify(car);
+      await ctx.stub.putState(carId, Buffer.from(stringfyCar));
+      return stringfyCar;
+    }
+    throw new Error(
+      `Категория вашего В/У, не соответсвует категории Автомобиля`
+    );
+  }
+  /**
+   * Метод, для получения категории В/У  по адресу пользователя =>
+   * мы учитываем тот случай, что человек без В/У  не сможет зарегистрировать автомобиль
+   * @param {ctx} ctx -информация о пользователе, системный параметр
+   * @param {address} userAddress - адрес пользователя
+   * @returns {string} Category - категория  В/У
+   
+   */
+  async GetLicenseCategory(ctx, userAddress) {
+    const licenseJSON = await ctx.stub.getState(userAddress);
+    if (!licenseJSON || licenseJSON.length === 0) {
+      throw new Error(`Водительского удостоверения  не существует`);
+    }
+    const license = JSON.parse(licenseJSON.toString());
+    return license.Category;
+  }
+  /**
+   * Метод, для продления В/У, проверка на штрафы и время
+   * @param {ctx} ctx -информация о пользователе, системный параметр
+   * @param {address} userAddress - адрес пользователя
+   * ВАЖНЫЙ МОМЕНТ, по ТЗ 1 ДЕНЬ === 1 МИНУТЕ реального времени
+   */
+  async extensionLicense(ctx, userAddress) {
+    const countForfeit = this.GetCountForfeit(ctx, userAddress);
+    const licenseLife = this.GetLicenseLife(ctx, userAddress);
+    const now = new Date();
+    const resDate = now - licenseLife;
+
+    // if(countForfeit ===0 &amp;&amp; ){
+
+    // }
+  }
+
+  /**
+   * Метод, для получении информации о количестве штрафов у пользователя
+   * @param {ctx} ctx - информация о пользователе, системный параметр
+   * @param {address} userAddress - адрес пользователя
+   * @returns {int} CountForfeit - количество штрафов у пользователя
+   */
+  async GetCountForfeit(ctx, userAddress) {
+    const userJSON = await ctx.stub.getState(userAddress);
+    if (!userJSON || userJSON.length === 0) {
+      throw new Error(`Вы не зарегистрированы в системе`);
+    }
+    const user = JSON.parse(userJSON.toString());
+    return user.CountForfeit;
+  }
+
+  /**
+   * Метод для получения информации о сроке действия В/У пользователя
+   * @param {ctx} ctx - информация о пользователе, системный параметр
+   * @param {address} userAddress - адрес пользователя
+   * @returns {date} serivceLife - срок действия В/У
+   */
+  async GetLicenseLife(ctx, userAddress) {
+    const licenseJSON = await ctx.stub.getState(userAddress);
+    if (!licenseJSON || licenseJSON.length === 0) {
+      throw new Error(`У вас отсутствует В/У`);
+    }
+    const license = JSON.parse(licenseJSON.toString());
+    return license.SerivceLife;
+  }
+  /**
+   * Метод, оформления штрафа водителю, происходит по В/У
+   */
+}
+/**
+ * Для того чтобы контракт, можно было использовать вне файла
+ * ОБЯЗАТЕЛЬНО прописать, указывается название класса,
+ * по записи означает тоже самое как в реакте
+ * export{Users};
+ */
+module.exports = Users;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Users.html">Users</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Dec 26 2024 14:26:55 GMT+0300 (Москва, стандартное время)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
