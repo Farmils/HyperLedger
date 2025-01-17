@@ -54,7 +54,7 @@ app.use(express.json());
  */
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // Разрешить запросы только с определённого источника
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT"); // Разрешённые методы
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT,DELETE"); // Разрешённые методы
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Разрешённые заголовки
 
   next(); // Продолжить обработку запроса
@@ -65,7 +65,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = "blockchain2024";
-const chaincodeName = "jopa";
+const chaincodeName = "piska";
 const contractName = "User";
 const adminUserId = "admin";
 const adminUserPasswd = "adminpw";
@@ -585,7 +585,7 @@ async function getDriverLicense(organization, userID, licenseId) {
  *   .then(result => console.log(result))
  *   .catch(error => console.error(error));
  */
-async function getLicenseCategory(organization, userID, userID) {
+async function getLicenseCategory(organization, userID) {
   try {
     return await getFunc(
       contractName,
@@ -597,6 +597,20 @@ async function getLicenseCategory(organization, userID, userID) {
   } catch (error) {
     const errorMsg = `Failed to get Category your License, because you do not have a license`;
     console.error(errorMsg);
+    return errorMsg;
+  }
+}
+/**
+ * Получениe информации о  зарегистрированном пользователе
+ */
+async function getUser(organization, userID) {
+  try {
+    return await getFunc(contractName, organization, userID, "GetUser", [
+      userID,
+    ]);
+  } catch (error) {
+    const errorMsg = ` Вы не зарегистрированы в системе ${error}`;
+    console.error(error);
     return errorMsg;
   }
 }
@@ -749,9 +763,20 @@ app.post("/registration", async (req, res) => {
     countForfeit,
     balance
   );
+  console.log(req.body);
+  // console.log(organization);
+  // console.log(userID);
+  // console.log(fio);
+  // console.log(startDrive);
+  // console.log(countForfeit);
+  // console.log(balance);
   res.send(result);
 });
-
+app.get("/getUser", async (req, res) => {
+  const query = req.query;
+  const result = await getUser(query.organization, query.userID);
+  res.send(result);
+});
 app.get("/getDriverLicense", async (req, res) => {
   const query = req.query;
   const result = await getDriverLicense(

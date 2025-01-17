@@ -106,6 +106,16 @@ class Users extends Contract {
     const userJSON = await ctx.stub.getState(userId);
     return userJSON && userJSON.length > 0;
   }
+  /**
+   * Метод для получения информации о пользователе
+   */
+  async GetUser(ctx, userId) {
+    const UserJSON = await ctx.stub.getState(userId);
+    if (!UserJSON || UserJSON.length === 0) {
+      throw new Error(`Вы не зарегистрированы в системе`);
+    }
+    return UserJSON.toString();
+  }
 
   /**
    * Метод для добавления Водительского удостоверения

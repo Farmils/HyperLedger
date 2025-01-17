@@ -1,5 +1,4 @@
 import { createContext, useState } from "react";
-
 const Context = createContext({});
 const ContextProvider = ({ children }) => {
   const [userId, setUserId] = useState("");
