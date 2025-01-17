@@ -8,6 +8,7 @@
  * @param {Wallets} Wallets - Кошелёк для связи пользователя с приложением.
  */
 const { Gateway, Wallets } = require("fabric-network");
+// const cors = require("cors");
 
 /**
  * @module path
@@ -51,10 +52,10 @@ app.use(express.json());
  * @param {Function} next - Функция, которая позволяет передать управление следующей функции.
  * @description Фреймворк Express.js построен на концепции ПО промежуточного уровня (англ. middleware). Суть этого подхода в том, что запрос к каждому ресурсу обрабатывается не одним единственным действием контролера, а целым стеком функций.
  */
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   next();
+// });
 
 /**
  * В chaincodeName вводим имя chaincode, которое мы указывали во время разворачивания контрактов во флаге -ccn.
@@ -749,9 +750,9 @@ app.post("/registration", async (req, res) => {
   res.send(result);
 });
 
-app.post("/getDriverLicense", async (req, res) => {
-  const { organization, userID, licenseId } = req.body;
-  const result = await getDriverLicense(organization, userID, licenseId);
+app.get("/getDriverLicense", async (req, res) => {
+  const query = req.query
+  const result = await getDriverLicense(query.organization, query.userID, query.licenseId);
   res.send(result);
 });
 
