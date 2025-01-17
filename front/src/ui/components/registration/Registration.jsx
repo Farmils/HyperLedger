@@ -1,18 +1,8 @@
 import { Button, Form, FormLabel } from "react-bootstrap";
-import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Registration = () => {
-  useEffect(() => {
-    (async () => {
-      await fetch(
-        "http://localhost:7000/getDriverLicense?organization=org1&userID=user82&licenseId=111",
-      ).then((response) => {
-        response.json().then((data) => {
-          console.log(data);
-        });
-      });
-    })();
-  }, []);
+  const nav = useNavigate();
   const submitRegistration = async (event) => {
     event.preventDefault();
     const organization = event.target[0].value.toString();
@@ -23,19 +13,19 @@ const Registration = () => {
     const balance = event.target[5].value;
     const response = await fetch("http://localhost:7000/registration", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
-        organization,
-        userId,
-        fio,
-        startDrive,
-        countForfeit,
-        balance,
+        organization: organization,
+        userID: userId,
+        fio: fio,
+        startDrive: startDrive,
+        countForfeit: countForfeit,
+        balance: balance,
       }),
     });
-    return response.json();
+    response.json().then((data) => {
+      console.log(data);
+    });
+    nav("/main");
   };
 
   return (

@@ -52,10 +52,13 @@ app.use(express.json());
  * @param {Function} next - Функция, которая позволяет передать управление следующей функции.
  * @description Фреймворк Express.js построен на концепции ПО промежуточного уровня (англ. middleware). Суть этого подхода в том, что запрос к каждому ресурсу обрабатывается не одним единственным действием контролера, а целым стеком функций.
  */
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   next();
-// });
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // Разрешить запросы только с определённого источника
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT"); // Разрешённые методы
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Разрешённые заголовки
+
+  next(); // Продолжить обработку запроса
+});
 
 /**
  * В chaincodeName вводим имя chaincode, которое мы указывали во время разворачивания контрактов во флаге -ccn.
@@ -744,15 +747,18 @@ app.post("/registration", async (req, res) => {
     fio,
     startDrive,
     countForfeit,
-    balance,
-    userID
+    balance
   );
   res.send(result);
 });
 
 app.get("/getDriverLicense", async (req, res) => {
-  const query = req.query
-  const result = await getDriverLicense(query.organization, query.userID, query.licenseId);
+  const query = req.query;
+  const result = await getDriverLicense(
+    query.organization,
+    query.userID,
+    query.licenseId
+  );
   res.send(result);
 });
 
