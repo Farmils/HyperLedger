@@ -251,7 +251,17 @@ class Users extends Contract {
     const user = JSON.parse(userJSON.toString());
     return user.CountForfeit;
   }
-
+  /**
+   * Метод для реализации авторизации
+   */
+  async Authorization(ctx, userId) {
+    const userJSON = await ctx.stub.getState(userId);
+    if (!userJSON || userJSON.length === 0) {
+      throw new Error(`Вы не зарегистрированы в системе`);
+    }
+    const user = JSON.parse(userJSON.toString());
+    return user.UserID;
+  }
   /**
    * Метод для получения информации о сроке действия В/У пользователя
    * @param {ctx} ctx - информация о пользователе, системный параметр

@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { Context } from "../../../core/context/Context.jsx";
 
-const Registration = () => {
-  const { setUserId, userId } = useContext(Context);
+const Registration = ({ handleClose }) => {
+  const { setUserId, setOrg } = useContext(Context);
+
   const nav = useNavigate("");
   const submitRegistration = async (event) => {
     event.preventDefault();
@@ -33,77 +34,76 @@ const Registration = () => {
     });
     nav("/main");
     setUserId(userId);
+    setOrg(organization);
+    handleClose();
   };
   return (
     <>
-      {userId === "" && (
-        <div className={"d-flex flex-column align-items-center"}>
-          <p className={"text-white fs-4 m-1"}>Регистрация</p>
-          <Form
-            style={{ padding: "10px", width: "35rem" }}
-            className={"d-flex flex-column"}
-            onSubmit={submitRegistration}
+      <div className={"d-flex flex-column align-items-center"}>
+        <Form
+          style={{ padding: "10px", width: "35rem" }}
+          className={"d-flex flex-column"}
+          onSubmit={submitRegistration}
+        >
+          <Form.Group>
+            <FormLabel column={1} className={"text-white"}>
+              Укажите организацию к которой вы относитесь
+            </FormLabel>
+            <Form.Control type={"string"} placeholder={"org1"}></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <FormLabel column={1} className={"text-white"}>
+              Укажите ID вашего пользователя
+            </FormLabel>
+            <Form.Control
+              type={"new-password"}
+              placeholder={"admin"}
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <FormLabel column={1} className={"text-white"}>
+              Укажите ваше ФИО
+            </FormLabel>
+            <Form.Control
+              type={"string"}
+              placeholder={"Продажный Иван Федорович"}
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <FormLabel column={1} className={"text-white"}>
+              Укажите дату начала водительского стажа
+            </FormLabel>
+            <Form.Control type={"date"}></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <FormLabel column={1} className={"text-white"}>
+              Укажите количество ваших штрафов
+            </FormLabel>
+            <Form.Control
+              type={"number"}
+              min={0}
+              placeholder={"12"}
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <FormLabel column={1} className={"text-white"}>
+              Укажите ваш баланс
+            </FormLabel>
+            <Form.Control
+              type={"number"}
+              min={0}
+              placeholder={"10"}
+            ></Form.Control>
+          </Form.Group>
+          <Button
+            type="submit"
+            variant={"success"}
+            style={{ marginTop: "12px" }}
           >
-            <Form.Group>
-              <FormLabel column={1} className={"text-white"}>
-                Укажите организацию к которой вы относитесь
-              </FormLabel>
-              <Form.Control type={"string"} placeholder={"org1"}></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <FormLabel column={1} className={"text-white"}>
-                Укажите ID вашего пользователя
-              </FormLabel>
-              <Form.Control
-                type={"new-password"}
-                placeholder={"admin"}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <FormLabel column={1} className={"text-white"}>
-                Укажите ваше ФИО
-              </FormLabel>
-              <Form.Control
-                type={"string"}
-                placeholder={"Продажный Иван Федорович"}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <FormLabel column={1} className={"text-white"}>
-                Укажите дату начала водительского стажа
-              </FormLabel>
-              <Form.Control type={"date"}></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <FormLabel column={1} className={"text-white"}>
-                Укажите количество ваших штрафов
-              </FormLabel>
-              <Form.Control
-                type={"number"}
-                min={0}
-                placeholder={"12"}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group>
-              <FormLabel column={1} className={"text-white"}>
-                Укажите ваш баланс
-              </FormLabel>
-              <Form.Control
-                type={"number"}
-                min={0}
-                placeholder={"10"}
-              ></Form.Control>
-            </Form.Group>
-            <Button
-              type="submit"
-              variant={"success"}
-              style={{ marginTop: "12px" }}
-            >
-              Зарегистрироваться
-            </Button>
-          </Form>
-        </div>
-      )}
+            Зарегистрироваться
+          </Button>
+        </Form>
+      </div>
     </>
   );
 };

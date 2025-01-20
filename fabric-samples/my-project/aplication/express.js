@@ -65,7 +65,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = "blockchain2024";
-const chaincodeName = "piska";
+const chaincodeName = "authoriza";
 const contractName = "User";
 const adminUserId = "admin";
 const adminUserPasswd = "adminpw";
@@ -691,11 +691,26 @@ async function GetCountForfeit(organization, userID, userID) {
  * @param {string} userID - Идентификатор пользователя.
  * @returns {Promise<string|number>} - Срок действия лицензии или сообщение об ошибке.
  */
-async function GetLicenseLife(organization, userID, userID) {
+async function GetLicenseLife(organization, userID) {
   try {
     return await getFunc(contractName, organization, userID, [userID]);
   } catch (error) {
     const errorMsg = `Ошибка, потому что ваша лицензия не зарегистрирована в системе`;
+    console.error(errorMsg);
+    return errorMsg;
+  }
+}
+
+/**
+ * Авторизация
+ */
+async function Authorization(organization, userID) {
+  try {
+    return await getFunc(contractName, organization, userID, "Authorization", [
+      userID,
+    ]);
+  } catch (error) {
+    const errorMsg = ` Failed you not registration in system, ${error}`;
     console.error(errorMsg);
     return errorMsg;
   }
@@ -722,6 +737,13 @@ app.post(`/enrollUser`, async (req, res) => {
   } else {
     result = await enrollUser(organization, userId);
   }
+  res.send(result);
+});
+app.get("/authorization", async (req, res) => {
+  const query = req.query;
+  const result = await Authorization(query.organization, query.userID);
+  console.log(query.organization, query.userID, result);
+
   res.send(result);
 });
 

@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { Context } from "../../../core/context/Context.jsx";
 
 const Header = () => {
-  const { userId } = useContext(Context);
+  const { userId, setUserId } = useContext(Context);
   return (
     <div
       style={{ backgroundColor: "rebeccapurple" }}
@@ -26,11 +26,28 @@ const Header = () => {
           >
             Личный кабинет
           </Link>
+          <Link
+            className={"btn btn-primary"}
+            to={"/"}
+            onClick={() => {
+              setUserId("");
+            }}
+          >
+            Выход
+          </Link>
         </>
       )}
-      <Link className={"btn btn-primary"} to={"/"}>
-        Выход
-      </Link>
+      {userId === "" && (
+        <Link
+          className={"btn btn-primary"}
+          to={"/"}
+          onClick={() => {
+            setUserId("");
+          }}
+        >
+          Выход
+        </Link>
+      )}
     </div>
   );
 };
