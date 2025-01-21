@@ -18,13 +18,14 @@ const Authorization = ({ handleClose }) => {
     event.preventDefault();
     const organization = event.target[0].value;
     const userId = event.target[1].value;
-    console.log(organization, userId);
+    const password = event.target[2].value;
+    console.log(organization, userId,password);
     const response = await fetch(
       `http://localhost:7000/authorization?organization=${organization}&userID=${userId}`,
     );
-    const data = await response.text();
+    const data = await response.json();
     console.log(data);
-    if (data.toLowerCase().toString() === userId.toLowerCase().toString()) {
+    if (data.id === userId && data.password === password ) {
       nav("/");
       setUserId(userId);
       setOrg(organization);
@@ -48,6 +49,10 @@ const Authorization = ({ handleClose }) => {
           Введите ID вашего пользователя
         </FormLabel>
         <FormControl placeholder={"admin"} type={"text"}></FormControl>
+      </FormGroup>
+      <FormGroup>
+        <FormLabel className={"text-white"} column={1}>Введите пароль</FormLabel>
+        <FormControl placeholder={"Zxqsd12_+"} type={"password"}></FormControl>
       </FormGroup>
       <Button
         type={"submit"}

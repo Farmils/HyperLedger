@@ -13,8 +13,9 @@ const Registration = ({ handleClose }) => {
     const userId = event.target[1].value;
     const fio = event.target[2].value;
     const startDrive = event.target[3].value;
-    const countForfeit = event.target[4].value;
-    const balance = event.target[5].value;
+    const password = event.target[4].value;
+    const countForfeit = event.target[5].value;
+    const balance = event.target[6].value;
     const response = await fetch("http://localhost:7000/registration", {
       headers: {
         "Content-Type": "application/json",
@@ -25,6 +26,7 @@ const Registration = ({ handleClose }) => {
         userID: userId,
         fio: fio,
         startDrive: startDrive,
+        password:password,
         countForfeit: countForfeit,
         balance: balance,
       }),
@@ -77,6 +79,15 @@ const Registration = ({ handleClose }) => {
           </Form.Group>
           <Form.Group>
             <FormLabel column={1} className={"text-white"}>
+              Укажите пароль
+            </FormLabel>
+            <Form.Control
+                type={"password"}
+                placeholder={"Zqsdcx_+"}
+            ></Form.Control>
+          </Form.Group>
+          <Form.Group>
+            <FormLabel column={1} className={"text-white"}>
               Укажите количество ваших штрафов
             </FormLabel>
             <Form.Control
@@ -87,7 +98,7 @@ const Registration = ({ handleClose }) => {
           </Form.Group>
           <Form.Group>
             <FormLabel column={1} className={"text-white"}>
-              Укажите ваш баланс
+              Укажите ваш баланс ProfiCoin
             </FormLabel>
             <Form.Control
               type={"number"}

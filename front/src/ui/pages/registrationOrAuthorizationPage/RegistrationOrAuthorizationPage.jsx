@@ -3,7 +3,7 @@ import { Header } from "../../components/header/Header.jsx";
 import { Authorization } from "../../components/authorization/Authorization.jsx";
 import { Button, Modal } from "react-bootstrap";
 import { useState } from "react";
-
+import "./RegistrationOrAuthorization.css";
 const RegistrationOrAuthorizationPage = () => {
   const [regShow, setRegShow] = useState(false);
   const [authShow, setAuthShow] = useState(false);
@@ -33,7 +33,7 @@ const RegistrationOrAuthorizationPage = () => {
           Зарегистрироваться
         </Button>
         <Modal
-          className="special_modal"
+          className={"special-modal"}
           show={regShow}
           onHide={handleRegClose}
           style={{ width: "100%" }}
@@ -59,7 +59,7 @@ const RegistrationOrAuthorizationPage = () => {
         <Modal
           onHide={handleAuthClose}
           show={authShow}
-          className="special_modal"
+          className={"special-modal"}
           centered={true}
         >
           <Modal.Header className={"text-white fs-4"}>Авторизация</Modal.Header>

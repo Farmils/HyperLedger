@@ -9,11 +9,11 @@ import { useContext } from "react";
 import { Context } from "../../../../core/context/Context.jsx";
 
 const AddDriverLicense = () => {
-  const { org, userId } = useContext(Context);
+  const { org, userId,setLicenseId } = useContext(Context);
   const submitAddLicense = async (event) => {
     event.preventDefault();
     const licenseId = event.target[0].value;
-    const serviceLive = event.target[1].value;
+    const serviceLife = event.target[1].value;
     const category = event.target[2].value;
     const response = await fetch("http://localhost:7000/addDriverLicense", {
       headers: {
@@ -24,23 +24,23 @@ const AddDriverLicense = () => {
         organization: org,
         userID: userId,
         licenseId: licenseId,
-        serviceLive: serviceLive,
+        serviceLife: serviceLife,
         category: category,
       }),
     });
     response.json().then((data) => {
       console.log(data);
     });
+    setLicenseId(licenseId);
   };
 
   return (
-    <div style={{ width: "45rem" }}>
+    <div style={{ width: "25rem",marginLeft:"25px", marginRight:"150px" }}>
       <Form
         className={
-          "d-flex flex-column justify-content-center align-items-center"
+          "d-flex flex-column "
         }
         onSubmit={submitAddLicense}
-        style={{ width: "45rem" }}
       >
         <p className={"text-white fs-4"}>
           Добавление Водительского удостоверения
