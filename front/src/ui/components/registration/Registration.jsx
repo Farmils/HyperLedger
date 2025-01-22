@@ -34,9 +34,10 @@ const Registration = ({ handleClose }) => {
     response.json().then((data) => {
       console.log(data);
     });
-    nav("/main");
     setUserId(userId);
     setOrg(organization);
+    nav("/main");
+
     handleClose();
   };
   return (

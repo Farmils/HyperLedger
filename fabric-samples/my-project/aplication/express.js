@@ -35,6 +35,7 @@ const express = require('express');
 const FabricCAServices = require('fabric-ca-client');
 const { userInfo } = require('os');
 const { log } = require('console');
+const { errorMonitor } = require('stream');
 
 /**
  * Создаём объект приложения.
@@ -66,7 +67,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = 'blockchain2024';
-const chaincodeName = 'umer';
+const chaincodeName = 'noj';
 const contractName = 'User';
 const adminUserId = 'admin';
 const adminUserPasswd = 'adminpw';
@@ -528,14 +529,21 @@ async function addDriverLicense(
 /**
  *
  */
-async function getDriverLicense(organization, userID, licenseId) {
+async function getDriverLicense(organization, userID) {
     try {
+        const user = await getFunc(
+            contractName,
+            organization,
+            userID,
+            'GetUser',
+            [userID]
+        );
         return await getFunc(
             contractName,
             organization,
             userID,
-            'GetDriverLicense',
-            [licenseId]
+            `GetDriverLicense`,
+            [user.licenseId]
         );
     } catch (error) {
         const errorMsg = `Failed to get Driver License, license id ${licenseId} is not the database ${error}`;
@@ -560,14 +568,14 @@ async function getDriverLicense(organization, userID, licenseId) {
  *   .then(result => console.log(result))
  *   .catch(error => console.error(error));
  */
-async function getLicenseCategory(organization, userID) {
+async function getLicenseCategory(organization, userID, licenseId) {
     try {
         return await getFunc(
             contractName,
             organization,
             userID,
             'GetLicenseCategory',
-            [userID]
+            [licenseId]
         );
     } catch (error) {
         const errorMsg = `Failed to get Category your License, because you do not have a license`;
@@ -585,6 +593,17 @@ async function getUser(organization, userID) {
         ]);
     } catch (error) {
         const errorMsg = ` Вы не зарегистрированы в системе ${error}`;
+        console.error(error);
+        return errorMsg;
+    }
+}
+async function getCar(organization, userID, carID) {
+    try {
+        return await getFunc(contractName, organization, userID, 'GetCar', [
+            carID,
+        ]);
+    } catch (error) {
+        const errorMsg = `Машина не зарегистрирована в системе ${error}`;
         console.error(error);
         return errorMsg;
     }
@@ -615,7 +634,8 @@ async function addCar(
     userID,
     carCategory,
     price,
-    serviceLife
+    serviceLife,
+    licenseId
 ) {
     try {
         return await postFunc(contractName, organization, userID, 'AddCar', [
@@ -624,9 +644,10 @@ async function addCar(
             carCategory,
             price,
             serviceLife,
+            licenseId,
         ]);
     } catch (error) {
-        const errorMsg = `Failed to add Car, because category your license does not match the category of your auto`;
+        const errorMsg = `Failed to add Car, because category your license does not match the category of your auto ${error}`;
         console.error(errorMsg);
         return errorMsg;
     }
@@ -724,6 +745,11 @@ app.get('/authorization', async (req, res) => {
 
     res.send(result);
 });
+app.get('/getCar', async (req, res) => {
+    const query = req.query;
+    const result = await getCar(query.organization, query.userID, query.carID);
+    res.send(result);
+});
 
 /**
  * Эндпоинт для регистрации администратора.
@@ -745,7 +771,7 @@ app.post('/addDriverLicense', async (req, res) => {
     const { organization, licenseId, serviceLife, category, userID } = req.body;
     const result = await addDriverLicense(
         organization,
-        licenseId,
+        Number(licenseId),
         serviceLife,
         category,
         userID
@@ -788,7 +814,17 @@ app.get('/getUser', async (req, res) => {
 });
 app.get('/getDriverLicense', async (req, res) => {
     const query = req.query;
+    console.log(query);
     const result = await getDriverLicense(
+        query.organization,
+        query.userID,
+        query.licenseId
+    );
+    res.send(result);
+});
+app.get('/getLicenseCategory', async (req, res) => {
+    const query = req.query;
+    const result = await getLicenseCategory(
         query.organization,
         query.userID,
         query.licenseId
@@ -813,15 +849,23 @@ app.get('/getDriverLicense', async (req, res) => {
  * @returns {void}
  */
 app.post('/addCar', async (request, response) => {
-    const { organization, carID, userID, carCategory, price, serviceLife } =
-        request.body;
+    const {
+        organization,
+        carID,
+        userID,
+        carCategory,
+        price,
+        serviceLife,
+        licenseId,
+    } = request.body;
     const result = await addCar(
         organization,
         carID,
         userID,
         carCategory,
         price,
-        serviceLife
+        serviceLife,
+        licenseId
     );
     response.send(result);
 });

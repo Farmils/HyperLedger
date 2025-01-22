@@ -21,7 +21,7 @@ const Profile = () => {
   return (
     <div className={"d-flex flex-column justify-content-center align-items-center m-3"}>
       <Card
-        className={"d-flex justify-content-center align-items-center"}
+        className={"d-flex  text-center"}
         style={{ width: "25rem" }}
       >
         <Card.Title>ФИО: {profileData.FIO.toString()}</Card.Title>

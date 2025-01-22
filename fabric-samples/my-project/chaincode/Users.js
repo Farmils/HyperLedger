@@ -2,7 +2,6 @@
  * @author Farmils
  */
 'use strict';
-const { log } = require('console');
 const { Contract } = require('fabric-contract-api');
 class Users extends Contract {
     /**
@@ -29,36 +28,43 @@ class Users extends Contract {
                 ID: '000',
                 ServiceLife: '11.01.2021',
                 Category: 'A',
+                UserId: '',
             },
             {
                 ID: '111',
                 ServiceLife: '12.05.2025',
                 Category: 'B',
+                UserId: '',
             },
             {
                 ID: '222',
                 ServiceLife: '09.09.2020',
                 Category: 'C',
+                UserId: '',
             },
             {
                 ID: '333',
                 ServiceLife: '13.02.2027',
                 Category: 'A',
+                UserId: '',
             },
             {
                 ID: '444',
                 ServiceLife: '10.09.2020',
                 Category: 'B',
+                UserId: '',
             },
             {
                 ID: '555',
                 ServiceLife: '24.06.2029',
                 Category: 'C',
+                UserId: '',
             },
             {
                 ID: '666',
                 ServiceLife: '31.03.2030',
                 Category: 'A',
+                UserID: '',
             },
         ];
         for (const driverLicense of DriverLicenses) {
@@ -102,6 +108,7 @@ class Users extends Contract {
             StartDrive: startDrive,
             CountForfeit: countForfeit,
             Balance: balance,
+            licenseId: '',
         };
         const strigifiedUser = JSON.stringify(user);
         await ctx.stub.putState(userId, Buffer.from(strigifiedUser));
@@ -137,7 +144,9 @@ class Users extends Contract {
      * @returns {JSON} stringifyLicense - информация о В/У
      */
     async AddDriverLicense(ctx, licenseId, serviceLife, category, userId) {
+        console.log(`piska`);
         const exist = await this.DriverLicenseExists(ctx, licenseId);
+
         if (exist) {
             const license = {
                 ID: licenseId,
@@ -145,6 +154,13 @@ class Users extends Contract {
                 Category: category,
                 userID: userId,
             };
+            console.log('jopa');
+            const user = await this.GetUser(ctx, userId);
+            console.log(userId);
+            user.licenseId = licenseId;
+            console.log(licenseId);
+            const stringfyUser = JSON.stringify(user);
+            await ctx.stub.putState(userId, Buffer.from(stringfyUser));
             const stringifyLicense = JSON.stringify(license);
             await ctx.stub.putState(licenseId, Buffer.from(stringifyLicense));
             return stringifyLicense;
@@ -185,8 +201,16 @@ class Users extends Contract {
      * @param {date} serviceLife - срок эксплуатации
      * @returns {JSON} stringfyCar- информация о машине
      */
-    async AddCar(ctx, carId, userId, carCategory, price, serviceLife) {
-        const licenseCategory = await this.GetLicenseCategory(ctx, userId);
+    async AddCar(
+        ctx,
+        carId,
+        userId,
+        carCategory,
+        price,
+        serviceLife,
+        licenseId
+    ) {
+        const licenseCategory = await this.GetLicenseCategory(ctx, licenseId);
         if (licenseCategory === carCategory) {
             const car = {
                 CarID: carId,
@@ -200,7 +224,9 @@ class Users extends Contract {
             return stringfyCar;
         }
         throw new Error(
-            `Категория вашего В/У, не соответсвует категории Автомобиля`
+            `Категория вашего В/У, не соответсвует категории Автомобиля: ${JSON.stringify(
+                licenseCategory
+            )} != ${carCategory}`
         );
     }
     /**
@@ -222,14 +248,13 @@ class Users extends Contract {
    * @returns {string} Category - категория  В/У
    
    */
-    async GetLicenseCategory(ctx, userId) {
-        const licenseJSON = await ctx.stub.getState(userId);
+    async GetLicenseCategory(ctx, licenseId) {
+        const licenseJSON = await ctx.stub.getState(licenseId);
         if (!licenseJSON || licenseJSON.length === 0) {
             throw new Error(`Водительского удостоверения  не существует`);
         }
         const license = JSON.parse(licenseJSON.toString());
-        console.log(license.Category, userId, license);
-        return { carCategory: license.Category, userId: userId };
+        return license.Category;
     }
     /**
      * Метод, для продления В/У, проверка на штрафы и время

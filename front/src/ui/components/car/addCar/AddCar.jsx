@@ -3,7 +3,7 @@ import {useContext} from "react";
 import {Context} from "../../../../core/context/Context.jsx";
 
 const AddCar = () => {
-    const {org,userId,licenseId} = useContext(Context);
+    const {org,userId,licenseId,setCarId,setCarInform} = useContext(Context);
     const submitAddCar = async (event) => {
         event.preventDefault();
         const carId = event.target[0].value;
@@ -21,11 +21,15 @@ const AddCar = () => {
                 userID:userId,
                 carCategory:carCategory,
                 price:price,
-                serviceLife:serviceLife
+                serviceLife:serviceLife,
+                licenseId:licenseId,
             })
         })
         const data = await response.json()
         console.log(data)
+        setCarInform(data);
+        setCarId(carId);
+        alert(`Т/С добавлено`)
     }
     return (
         <div style={{width:'25rem'}} >

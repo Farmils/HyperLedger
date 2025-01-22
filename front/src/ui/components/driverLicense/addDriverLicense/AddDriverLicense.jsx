@@ -8,6 +8,7 @@ import {
 import { useContext } from "react";
 import { Context } from "../../../../core/context/Context.jsx";
 
+
 const AddDriverLicense = () => {
   const { org, userId,setLicenseId } = useContext(Context);
   const submitAddLicense = async (event) => {
@@ -32,6 +33,7 @@ const AddDriverLicense = () => {
       console.log(data);
     });
     setLicenseId(licenseId);
+    alert("В/У добавлено")
   };
 
   return (

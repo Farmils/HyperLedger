@@ -13,12 +13,21 @@ const initialStateLicense ={
   Category:"",
   userID:""
 }
+const initialStateCar={
+  CarCategory:"",
+  CarID:"",
+  Owner:"",
+  Price:"",
+  serviceLife:""
+}
 const ContextProvider = ({ children }) => {
   const [userId, setUserId] = useState("");
   const [org, setOrg] = useState("");
   const [profileData, setProfileData] = useState(initialStateProfile);
   const [licenseId, setLicenseId] = useState("");
   const [licenseInform, setLicenseInform] = useState(initialStateLicense);
+  const [carId, setCarId] = useState("");
+  const [carInform, setCarInform] = useState(initialStateCar);
 
   const values = {
     userId,
@@ -30,7 +39,11 @@ const ContextProvider = ({ children }) => {
     licenseId,
     setLicenseId,
     licenseInform,
-    setLicenseInform
+    setLicenseInform,
+    carId,
+    setCarId,
+    carInform,
+    setCarInform,
   };
   return <Context.Provider value={values}>{children}</Context.Provider>;
 };

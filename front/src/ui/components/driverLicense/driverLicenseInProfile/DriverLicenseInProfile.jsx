@@ -14,8 +14,13 @@ const DriverLicenseInProfile =()=>{
         })()
     }, []);
     return (<div  className={"m-4"}>{
-        licenseInform.ID === ""?(<p>У вас отсутсвует В/У</p>):
-            (<Card>
+        licenseInform.ID === ""?(
+            <Card>
+                <CardBody>
+                    <CardTitle >У вас отсутсвует В/У</CardTitle>
+                </CardBody>
+                </Card>):
+            (<Card className={"text-center"}>
                 <p className={"fs-3 fw-bold"}>Водительское Удостоверение</p>
             <CardTitle>ID В/У: {licenseInform.ID.toString()}</CardTitle>
                 <CardBody>
