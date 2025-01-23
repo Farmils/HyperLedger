@@ -28,6 +28,7 @@ const ContextProvider = ({ children }) => {
   const [licenseInform, setLicenseInform] = useState(initialStateLicense);
   const [carId, setCarId] = useState("");
   const [carInform, setCarInform] = useState(initialStateCar);
+  const [toPolice, setToPolice] = useState(false);
 
   const values = {
     userId,
@@ -44,6 +45,8 @@ const ContextProvider = ({ children }) => {
     setCarId,
     carInform,
     setCarInform,
+    toPolice,
+    setToPolice
   };
   return <Context.Provider value={values}>{children}</Context.Provider>;
 };

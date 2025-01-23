@@ -67,7 +67,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = 'blockchain2024';
-const chaincodeName = 'noj';
+const chaincodeName = 'oreo';
 const contractName = 'User';
 const adminUserId = 'admin';
 const adminUserPasswd = 'adminpw';
@@ -395,7 +395,7 @@ async function postFunc(contractName, organization, userID, func, args) {
  *   .then(result => console.log(result))
  *   .catch(error => console.error(error));
  */
-async function getFunc(contractName, organization, userID, func, ...args) {
+async function getFunc(contractName, organization, userID, func, args) {
     try {
         const gateway = await getGateway(organization, userID);
         const contract = await getContract(gateway, contractName);
@@ -491,7 +491,7 @@ async function getUser(organization, userID) {
  *
  * @async
  * @function addDriverLicense
- * @param {string} organization - Имя организации.
+ * * @param {string} organization - Имя организации.
  * @param {string} userID - Идентификатор пользователя.
  * @param {number} licenseId - ID водительского удостоверения.
  * @param {string} serviceLife - Срок действия водительского удостоверения.
@@ -529,21 +529,21 @@ async function addDriverLicense(
 /**
  *
  */
-async function getDriverLicense(organization, userID) {
+async function getDriverLicense(organization, userID, licenseId) {
     try {
-        const user = await getFunc(
-            contractName,
-            organization,
-            userID,
-            'GetUser',
-            [userID]
-        );
+        // const user = await getFunc(
+        // //     contractName,
+        // //     organization,
+        // //     userID,
+        // //     'GetUser',
+        // //     [userID]
+        // // );
         return await getFunc(
             contractName,
             organization,
             userID,
             `GetDriverLicense`,
-            [user.licenseId]
+            [licenseId]
         );
     } catch (error) {
         const errorMsg = `Failed to get Driver License, license id ${licenseId} is not the database ${error}`;
@@ -580,6 +580,21 @@ async function getLicenseCategory(organization, userID, licenseId) {
     } catch (error) {
         const errorMsg = `Failed to get Category your License, because you do not have a license`;
         console.error(errorMsg);
+        return errorMsg;
+    }
+}
+
+async function sendForfeit(organization, userID, licenseId) {
+    try {
+        return await postFunc(
+            contractName,
+            organization,
+            userID,
+            'SendForfeit',
+            [licenseId]
+        );
+    } catch (error) {
+        const errorMsg = `Failed to sendForfeit ${error}`;
         return errorMsg;
     }
 }
@@ -748,6 +763,11 @@ app.get('/authorization', async (req, res) => {
 app.get('/getCar', async (req, res) => {
     const query = req.query;
     const result = await getCar(query.organization, query.userID, query.carID);
+    res.send(result);
+});
+app.post('/sendForfeit', async (req, res) => {
+    const { organization, userID, licenseId } = req.body;
+    const result = await sendForfeit(organization, userID, licenseId);
     res.send(result);
 });
 

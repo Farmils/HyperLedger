@@ -7,12 +7,15 @@ const DriverLicenseInProfile =()=>{
     useEffect(() => {
         (async () => {
             console.log(licenseId,org,userId)
-            const response = await fetch((`http://localhost:7000/getDriverLicense?organization=${org}&userID=${userId}&licenseId=${licenseId}`));
-            const data = await response.json();
-            console.log(data)
-            setLicenseInform(data);
+            if(licenseId !== ""){
+                const response = await fetch((`http://localhost:7000/getDriverLicense?organization=${org}&userID=${userId}&licenseId=${licenseId}`));
+                const data = await response.json();
+                console.log(data)
+                setLicenseInform(data);
+            }
+
         })()
-    }, []);
+    }, [org,userId,licenseId]);
     return (<div  className={"m-4"}>{
         licenseInform.ID === ""?(
             <Card>

@@ -23,10 +23,10 @@ const AddDriverLicense = () => {
       method: "POST",
       body: JSON.stringify({
         organization: org,
-        userID: userId,
         licenseId: licenseId,
         serviceLife: serviceLife,
         category: category,
+        userID: userId,
       }),
     });
     response.json().then((data) => {

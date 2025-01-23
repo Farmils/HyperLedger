@@ -1,6 +1,6 @@
 import {
   Button,
-  Form,
+  Form, FormCheck,
   FormControl,
   FormGroup,
   FormLabel,
@@ -12,13 +12,14 @@ import { Context } from "../../../core/context/Context.jsx";
 const Authorization = ({ handleClose }) => {
   const nav = useNavigate("");
 
-  const { setUserId, setOrg } = useContext(Context);
+  const { setUserId, setOrg,setToPolice } = useContext(Context);
 
   const submitAuthorization = async (event) => {
     event.preventDefault();
     const organization = event.target[0].value;
     const userId = event.target[1].value;
     const password = event.target[2].value;
+    const toPolice = event.target[3].checked;
     console.log(organization, userId,password);
     const response = await fetch(
       `http://localhost:7000/authorization?organization=${organization}&userID=${userId}`,
@@ -32,6 +33,7 @@ const Authorization = ({ handleClose }) => {
     } else {
       throw new Error(`Вы не зарегистрированы в системе`);
     }
+    setToPolice(toPolice);
     nav("/main");
     handleClose();
   };
@@ -53,6 +55,10 @@ const Authorization = ({ handleClose }) => {
       <FormGroup>
         <FormLabel className={"text-white"} column={1}>Введите пароль</FormLabel>
         <FormControl placeholder={"Zxqsd12_+"} type={"password"}></FormControl>
+      </FormGroup>
+      <FormGroup>
+        <FormLabel className={"text-white"}>Вы явялетесь сотрудником дорожно-патрульной службы?</FormLabel>
+        <FormCheck type={"checkbox"}></FormCheck>
       </FormGroup>
       <Button
         type={"submit"}

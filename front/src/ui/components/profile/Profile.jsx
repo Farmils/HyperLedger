@@ -17,7 +17,7 @@ const Profile = () => {
         console.log(data);
       })();
     }
-  });
+  },[org,userId,profileData]);
   return (
     <div className={"d-flex flex-column justify-content-center align-items-center m-3"}>
       <Card

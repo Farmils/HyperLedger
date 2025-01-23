@@ -1,4 +1,4 @@
-import { Button, Form, FormLabel } from "react-bootstrap";
+import {Button, Form, FormCheck, FormGroup, FormLabel} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { Context } from "../../../core/context/Context.jsx";
@@ -16,6 +16,7 @@ const Registration = ({ handleClose }) => {
     const password = event.target[4].value;
     const countForfeit = event.target[5].value;
     const balance = event.target[6].value;
+
     const response = await fetch("http://localhost:7000/registration", {
       headers: {
         "Content-Type": "application/json",
@@ -36,6 +37,7 @@ const Registration = ({ handleClose }) => {
     });
     setUserId(userId);
     setOrg(organization);
+
     nav("/main");
 
     handleClose();

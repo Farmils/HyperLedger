@@ -127,11 +127,12 @@ class Users extends Contract {
      * Метод для получения информации о пользователе
      */
     async GetUser(ctx, userId) {
-        const UserJSON = await ctx.stub.getState(userId);
-        if (!UserJSON || UserJSON.length === 0) {
+        const userJSON = await ctx.stub.getState(userId);
+        if (!userJSON || userJSON.length === 0) {
             throw new Error(`Вы не зарегистрированы в системе`);
         }
-        return UserJSON.toString();
+        const user = JSON.parse(userJSON);
+        return user;
     }
 
     /**
@@ -144,9 +145,7 @@ class Users extends Contract {
      * @returns {JSON} stringifyLicense - информация о В/У
      */
     async AddDriverLicense(ctx, licenseId, serviceLife, category, userId) {
-        console.log(`piska`);
         const exist = await this.DriverLicenseExists(ctx, licenseId);
-
         if (exist) {
             const license = {
                 ID: licenseId,
@@ -154,12 +153,11 @@ class Users extends Contract {
                 Category: category,
                 userID: userId,
             };
-            console.log('jopa');
             const user = await this.GetUser(ctx, userId);
-            console.log(userId);
+            console.log(user);
             user.licenseId = licenseId;
-            console.log(licenseId);
             const stringfyUser = JSON.stringify(user);
+            console.log(stringfyUser);
             await ctx.stub.putState(userId, Buffer.from(stringfyUser));
             const stringifyLicense = JSON.stringify(license);
             await ctx.stub.putState(licenseId, Buffer.from(stringifyLicense));
@@ -315,6 +313,13 @@ class Users extends Contract {
     /**
      * Метод, оформления штрафа водителю, происходит по В/У
      */
+    async SendForfeit(ctx, userID, licenseId) {
+        const user = this.GetUser(ctx, userID);
+        const license = this.GetDriverLicense(ctx, licenseId);
+        user.countForfeit += 1;
+        license.forfeit += 1;
+        return license.forfeit;
+    }
 }
 /**
  * Для того чтобы контракт, можно было использовать вне файла
