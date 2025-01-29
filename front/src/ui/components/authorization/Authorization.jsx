@@ -20,7 +20,7 @@ const Authorization = ({ handleClose }) => {
     const userId = event.target[1].value;
     const password = event.target[2].value;
     const toPolice = event.target[3].checked;
-    console.log(organization, userId,password);
+    console.log(organization, userId,password,toPolice);
     const response = await fetch(
       `http://localhost:7000/authorization?organization=${organization}&userID=${userId}`,
     );

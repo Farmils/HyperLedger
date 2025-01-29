@@ -71,7 +71,7 @@ class Users extends Contract {
             driverLicense.docType = 'driverLicense';
             await ctx.stub.putState(
                 driverLicense.ID,
-                Buffer.from(JSON.stringify(driverLicense))
+                Buffer.from(JSON.stringify(driverLicense)),
             );
         }
     }
@@ -93,12 +93,12 @@ class Users extends Contract {
         password,
         startDrive,
         countForfeit,
-        balance
+        balance,
     ) {
         const exist = await this.UserExists(ctx, userId);
         if (exist) {
             throw new Error(
-                `Пользователь с таким id: ${userId}, зарегистрирован в системе`
+                `Пользователь с таким id: ${userId}, зарегистрирован в системе`,
             );
         }
         const user = {
@@ -206,7 +206,7 @@ class Users extends Contract {
         carCategory,
         price,
         serviceLife,
-        licenseId
+        licenseId,
     ) {
         const licenseCategory = await this.GetLicenseCategory(ctx, licenseId);
         if (licenseCategory === carCategory) {
@@ -223,8 +223,8 @@ class Users extends Contract {
         }
         throw new Error(
             `Категория вашего В/У, не соответсвует категории Автомобиля: ${JSON.stringify(
-                licenseCategory
-            )} != ${carCategory}`
+                licenseCategory,
+            )} != ${carCategory}`,
         );
     }
     /**
@@ -253,22 +253,6 @@ class Users extends Contract {
         }
         const license = JSON.parse(licenseJSON.toString());
         return license.Category;
-    }
-    /**
-     * Метод, для продления В/У, проверка на штрафы и время
-     * @param {ctx} ctx -информация о пользователе, системный параметр
-     * @param {string} userId -  адрес  пользователя
-     * ВАЖНЫЙ МОМЕНТ, по ТЗ 1 ДЕНЬ === 1 МИНУТЕ реального времени
-     */
-    async extensionLicense(ctx, userId) {
-        const countForfeit = this.GetCountForfeit(ctx, userId);
-        const licenseLife = this.GetLicenseLife(ctx, userId);
-        const now = new Date();
-        const resDate = now - licenseLife;
-
-        // if(countForfeit ===0 && ){
-
-        // }
     }
 
     /**
@@ -302,23 +286,114 @@ class Users extends Contract {
      * @param {string} userId -  адрес  пользователя
      * @returns {string} serviceLife - срок действия В/У
      */
-    async GetLicenseLife(ctx, userId) {
-        const licenseJSON = await ctx.stub.getState(userId);
+    async GetLicenseLife(ctx, licenseId) {
+        const licenseJSON = await ctx.stub.getState();
         if (!licenseJSON || licenseJSON.length === 0) {
             throw new Error(`У вас отсутствует В/У`);
         }
         const license = JSON.parse(licenseJSON.toString());
         return license.serviceLife;
     }
-    /**
-     * Метод, оформления штрафа водителю, происходит по В/У
-     */
-    async SendForfeit(ctx, userID, licenseId) {
-        const user = this.GetUser(ctx, userID);
-        const license = this.GetDriverLicense(ctx, licenseId);
-        user.countForfeit += 1;
-        license.forfeit += 1;
-        return license.forfeit;
+    //  7. Продление лицензи
+    async RenewLicense(ctx, userId, licenseId, currentDate) {
+        const licenseByte = await ctx.stub.getState(licenseId);
+        const userByte = await ctx.stub.getState(userId);
+        if (!licenseByte || licenseByte.length === 0)
+            throw new Error('Пользователь не найден');
+        const user = JSON.parse(userByte.toString());
+        const license = JSON.parse(licenseByte.toString());
+        console.log(license);
+        console.log(user);
+        if (!license)
+            throw new Error('У пользователя нет водительского удостоверения');
+        if (user.CountForfeit > 0)
+            throw new Error('Невозможно продлить, есть неоплаченные штрафы');
+
+        const expirationDate = new Date(licenseId.serviceLife.json());
+        console.log(expirationDate);
+        console.log(typeof expirationDate);
+        const renewalThreshold = new Date(expirationDate);
+        renewalThreshold.setMinutes(renewalThreshold.getMinutes() - 30);
+
+        if (new Date(currentDate) < renewalThreshold) {
+            throw new Error(
+                'Продление возможно не ранее, чем за месяц до истечения срока',
+            );
+        }
+
+        expirationDate.setMinutes(expirationDate.getMinutes() + 10 * 365);
+        l = expirationDate.toISOString();
+        console.log(expirationDate);
+
+        await ctx.stub.putState(
+            licenseId,
+            Buffer.from(JSON.stringify(license)),
+        );
+        return 'Срок действия прав продлен';
+    }
+
+    //Выписка штрафа водителю
+    async IssueFine(ctx, userId, licenseId) {
+        const driverJSON = await ctx.stub.getState(userId);
+        if (!driverJSON || driverJSON.length === 0) {
+            throw new Error(`Водитель с идентификатором ${userId} не найден.`);
+        }
+        const license = licenseId;
+        const driver = JSON.parse(driverJSON.toString());
+        const issueDate = new Date().toISOString();
+        const fine = { issueDate, amount: 10 };
+        driver.CountForfeit += 1;
+        if (!driver.FineDetails) driver.FineDetails = [];
+        driver.FineDetails.push(fine);
+        await ctx.stub.putState(userId, Buffer.from(JSON.stringify(driver)));
+
+        return `Штраф успешно выписан водителю ${userId}.`;
+    }
+
+    // 6.Оплата штрафа с учетом времени выписки
+    async PayFine(ctx, userId) {
+        const userBytes = await ctx.stub.getState(userId);
+        if (!userBytes || userBytes.length === 0)
+            throw new Error('Пользователь не найден');
+
+        const user = JSON.parse(userBytes.toString());
+        if (!user.FineDetails || user.FineDetails.length === 0)
+            throw new Error('Нет неоплаченных штрафов');
+
+        const now = new Date();
+        const fine = user.FineDetails[0]; // Берем самый старый штраф
+
+        const issueTime = new Date(fine.issueDate);
+        const minutesSinceIssue = (now - issueTime) / 60000; // Разница в минутах (1 мин = 1 день)
+
+        const fineAmount = minutesSinceIssue <= 5 ? 5 : 10; // Скидка при оплате в первые 5 минут
+        console.log(fineAmount);
+        console.log(typeof fineAmount);
+
+        if (user.Balance < fineAmount) throw new Error('Недостаточно средств');
+
+        user.Balance -= fineAmount;
+        user.FineDetails.shift(); // Удаляем оплаченный штраф
+        user.CountForfeit -= 1;
+        const bankes = 'bank';
+        console.log(bankes);
+        console.log(Buffer(bankes));
+        const bankBytes = await ctx.stub.getState(bankes.toString());
+        console.log(bankBytes);
+        console.log(`please`);
+
+        const bank = JSON.parse(bankBytes.toString());
+        console.log(`work work please`);
+        console.log(bank);
+        bank.Balance = parseInt(bank.Balance);
+        bank.Balance += fineAmount;
+        await ctx.stub.putState(userId, Buffer.from(JSON.stringify(user)));
+        await ctx.stub.putState(
+            bankes.toString(),
+            Buffer.from(JSON.stringify(bank)),
+        );
+
+        return 'Штраф оплачен. Списано ${fineAmount} ProfiCoin. Остаток: ${user.balance} ProfiCoin';
     }
 }
 /**

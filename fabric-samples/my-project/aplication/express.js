@@ -67,7 +67,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = 'blockchain2024';
-const chaincodeName = 'oreo';
+const chaincodeName = 'test22';
 const contractName = 'User';
 const adminUserId = 'admin';
 const adminUserPasswd = 'adminpw';
@@ -95,7 +95,7 @@ function buildCCPOrg(organization) {
             'organizations',
             'peerOrganizations',
             `${organization}.example.com`,
-            `connection-${organization}.json`
+            `connection-${organization}.json`,
         );
         // Считывание connection файла в формате JSON
         const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
@@ -125,7 +125,7 @@ async function buildCAClient(ccp, organization) {
                 trustedRoots: caTLSCACerts,
                 verify: false,
             },
-            caInfo.caName
+            caInfo.caName,
         );
         return caClient;
     } catch (error) {
@@ -244,7 +244,7 @@ async function enrollUser(organization, userId) {
             .getProvider(adminIdentity.type);
         const adminUser = await provider.getUserContext(
             adminIdentity,
-            adminUserId
+            adminUserId,
         );
         let secret;
         try {
@@ -254,7 +254,7 @@ async function enrollUser(organization, userId) {
                     enrollmentID: userId,
                     role: 'client',
                 },
-                adminUser
+                adminUser,
             );
         } catch (error) {
             console.error(`Failed to enroll user ${userId}: ${error}`);
@@ -299,7 +299,7 @@ async function getGateway(organization, userID) {
         if (!identity) {
             console.log(
                 `An identity for the user ${userID} does not exist in the
-  wallet`
+  wallet`,
             );
             console.log('Enroll user before retrying');
             return;
@@ -365,13 +365,21 @@ async function getContract(gateway, contractName) {
 async function postFunc(contractName, organization, userID, func, args) {
     try {
         const gateway = await getGateway(organization, userID);
+        console.log(`получили путь`);
+
         const contract = await getContract(gateway, contractName);
+        console.log(`получили контракт`);
         // Отправка транзакции
         const result = await contract.submitTransaction(func, ...args);
+        console.log(`отправили транзакцию`);
+
         // Обязательно завершаем сессию после завершения операции
         await gateway.disconnect();
+        console.log(`завершаем сессию`);
+
         // Возвращаем результат выполнения транзации
         return result.toString();
+        console.log(`возврат результата`);
     } catch (error) {
         console.error(`Failed to submit transaction: ${error}`);
         throw new Error(error);
@@ -403,7 +411,7 @@ async function getFunc(contractName, organization, userID, func, args) {
         const result = await contract.evaluateTransaction(func, ...args);
         console.log(
             `Transaction has been evaluated, result is:
-  ${result.toString()}`
+  ${result.toString()}`,
         );
         await gateway.disconnect();
         return result.toString();
@@ -442,7 +450,7 @@ async function registration(
     password,
     startDrive,
     countForfeit,
-    balance
+    balance,
 ) {
     try {
         return await postFunc(
@@ -450,7 +458,7 @@ async function registration(
             organization,
             userID,
             'Registration',
-            [userID, fio, password, startDrive, countForfeit, balance]
+            [userID, fio, password, startDrive, countForfeit, balance],
         );
     } catch (error) {
         const errorMsg = `Failed Registration: ${error}`;
@@ -509,7 +517,7 @@ async function addDriverLicense(
     licenseId,
     serviceLife,
     category,
-    userID
+    userID,
 ) {
     try {
         return await postFunc(
@@ -517,7 +525,7 @@ async function addDriverLicense(
             organization,
             userID,
             'AddDriverLicense',
-            [licenseId, serviceLife, category, userID]
+            [licenseId, serviceLife, category, userID],
         );
     } catch (error) {
         const errorMsg = `Failed to add Driver License, your licenseId ${licenseId} is not in the database. ${error}`;
@@ -543,7 +551,7 @@ async function getDriverLicense(organization, userID, licenseId) {
             organization,
             userID,
             `GetDriverLicense`,
-            [licenseId]
+            [licenseId],
         );
     } catch (error) {
         const errorMsg = `Failed to get Driver License, license id ${licenseId} is not the database ${error}`;
@@ -575,7 +583,7 @@ async function getLicenseCategory(organization, userID, licenseId) {
             organization,
             userID,
             'GetLicenseCategory',
-            [licenseId]
+            [licenseId],
         );
     } catch (error) {
         const errorMsg = `Failed to get Category your License, because you do not have a license`;
@@ -591,7 +599,7 @@ async function sendForfeit(organization, userID, licenseId) {
             organization,
             userID,
             'SendForfeit',
-            [licenseId]
+            [licenseId],
         );
     } catch (error) {
         const errorMsg = `Failed to sendForfeit ${error}`;
@@ -650,7 +658,7 @@ async function addCar(
     carCategory,
     price,
     serviceLife,
-    licenseId
+    licenseId,
 ) {
     try {
         return await postFunc(contractName, organization, userID, 'AddCar', [
@@ -676,17 +684,43 @@ async function addCar(
  * @param {string} userID - Идентификатор пользователя.
  * @returns {Promise<string|number>} - Количество конфискаций или сообщение об ошибке.
  */
-async function GetCountForfeit(organization, userID, userID) {
+async function GetCountForfeit(organization, userID) {
     try {
         return await getFunc(
             contractName,
             organization,
             userID,
             'GetCountForfeit',
-            [userID]
+            [userID],
         );
     } catch (error) {
         const errorMsg = `Ошибка, потому что вы не зарегистрированы в системе`;
+        console.error(errorMsg);
+        return errorMsg;
+    }
+}
+
+async function IssueFine(organization, userID, licenseId) {
+    try {
+        return await postFunc(contractName, organization, userID, 'IssueFine', [
+            userID,
+            licenseId,
+        ]);
+    } catch (error) {
+        const errorMsg = `Не удалось выписать штраф пользователю ${userID}, ${error}`;
+        console.error(errorMsg);
+        return errorMsg;
+    }
+}
+
+async function PayFine(organization, userID) {
+    try {
+        return await postFunc(contractName, organization, userID, 'PayFine', [
+            userID,
+        ]);
+    } catch (error) {
+        console.log(`Нифига, ищу ошибку`);
+        const errorMsg = `Не удалось оплатить штраф, ${error}`;
         console.error(errorMsg);
         return errorMsg;
     }
@@ -721,10 +755,25 @@ async function Authorization(organization, userID) {
             organization,
             userID,
             'Authorization',
-            [userID]
+            [userID],
         );
     } catch (error) {
         const errorMsg = ` Failed you not registration in system, ${error}`;
+        console.error(errorMsg);
+        return errorMsg;
+    }
+}
+async function RenewLicense(organization, userID, licenseId, currentDate) {
+    try {
+        return await postFunc(
+            contractName,
+            organization,
+            userID,
+            'RenewLicense',
+            [userID, licenseId, currentDate],
+        );
+    } catch (error) {
+        const errorMsg = 'piska lox ${error}';
         console.error(errorMsg);
         return errorMsg;
     }
@@ -753,6 +802,16 @@ app.post(`/enrollUser`, async (req, res) => {
     }
     res.send(result);
 });
+app.post('/renewLicense', async (req, res) => {
+    const { organization, userID, licenseId, currentDate } = req.body;
+    const result = await RenewLicense(
+        organization,
+        userID,
+        licenseId,
+        currentDate,
+    );
+    res.send(result);
+});
 app.get('/authorization', async (req, res) => {
     const query = req.query;
     const result = await Authorization(query.organization, query.userID);
@@ -768,6 +827,19 @@ app.get('/getCar', async (req, res) => {
 app.post('/sendForfeit', async (req, res) => {
     const { organization, userID, licenseId } = req.body;
     const result = await sendForfeit(organization, userID, licenseId);
+    res.send(result);
+});
+app.post('/issueFine', async (req, res) => {
+    const { organization, userID, licenseId } = req.body;
+    const result = await IssueFine(organization, userID, licenseId);
+    res.send(result);
+});
+app.post('/payFine', async (req, res) => {
+    const { organization, userID } = req.body;
+    const result = await PayFine(organization, userID);
+    console.log(req.body);
+    console.log(result);
+
     res.send(result);
 });
 
@@ -794,7 +866,7 @@ app.post('/addDriverLicense', async (req, res) => {
         Number(licenseId),
         serviceLife,
         category,
-        userID
+        userID,
     );
     console.log(req.body);
     res.send(result);
@@ -816,7 +888,7 @@ app.post('/registration', async (req, res) => {
         password,
         startDrive,
         countForfeit,
-        balance
+        balance,
     );
     console.log(req.body);
     // console.log(organization);
@@ -838,7 +910,7 @@ app.get('/getDriverLicense', async (req, res) => {
     const result = await getDriverLicense(
         query.organization,
         query.userID,
-        query.licenseId
+        query.licenseId,
     );
     res.send(result);
 });
@@ -847,7 +919,7 @@ app.get('/getLicenseCategory', async (req, res) => {
     const result = await getLicenseCategory(
         query.organization,
         query.userID,
-        query.licenseId
+        query.licenseId,
     );
     res.send(result);
 });
@@ -885,7 +957,7 @@ app.post('/addCar', async (request, response) => {
         carCategory,
         price,
         serviceLife,
-        licenseId
+        licenseId,
     );
     response.send(result);
 });

@@ -37,7 +37,7 @@ const AddDriverLicense = () => {
   };
 
   return (
-    <div style={{ width: "25rem",marginLeft:"25px", marginRight:"150px" }}>
+    <div style={{ width: "25rem",margin:"0 auto" }}>
       <Form
         className={
           "d-flex flex-column "
@@ -51,8 +51,7 @@ const AddDriverLicense = () => {
         <FormGroup>
           <FormControl
             type={"number"}
-            min={111}
-            placeholder={"111"}
+            placeholder={"000"}
           ></FormControl>
         </FormGroup>
         <FormLabel className={"text-white"}>
