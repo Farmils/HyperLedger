@@ -7,18 +7,21 @@ Ya existe un comando **transfer** implementado en [transfer.ts](../../applicatio
 1. Escribe una implementación para el método `transferAsset()` en [contract.ts](../../applications/trader-typescript/src/contract.ts). Revisa la [documentación de la API para Contratos](https://hyperledger.github.io/fabric-gateway/main/api/node/interfaces/Contract.html) y los otros métodos en la clase **AssetTransfer** para ideas de como seguir.
 
 2. Recompila la aplicación de tu TypeScript actualizado:
-    ```bash
-    npm install
-    ```
-    > **Consejo:** Puedes dejar también ejecutándose `npm run build:watch` en una ventana de terminal para reconstruir automáticamente tu aplicación ante cualquier cambio en el código.
+
+   ```bash
+   npm install
+   ```
+
+   > **Consejo:** Puedes dejar también ejecutándose `npm run build:watch` en una ventana de terminal para reconstruir automáticamente tu aplicación ante cualquier cambio en el código.
 
 3. Si estas utilizando una nueva ventana de terminal, recuerda definir las variables de entorno para que apunten a los recursos requeridos por la aplicación.
-    ```bash
-    export ENDPOINT=org1peer-api.127-0-0-1.nip.io:8080
-    export MSP_ID=org1MSP
-    export CERTIFICATE=../../_cfg/uf/_msp/org1/org1admin/msp/signcerts/cert.pem
-    export PRIVATE_KEY=../../_cfg/uf/_msp/org1/org1admin/msp/keystore/cert_sk
-    ```
+
+   ```bash
+   export ENDPOINT=org1peer-api.127-0-0-1.nip.io:8080
+   export MSP_ID=Users
+   export CERTIFICATE=../../_cfg/uf/_msp/org1/org1admin/msp/signcerts/cert.pem
+   export PRIVATE_KEY=../../_cfg/uf/_msp/org1/org1admin/msp/keystore/cert_sk
+   ```
 
 4. ¡Pruébalo! Utiliza el comando **transfer** para transferir activos a nuevos propietarios con el mismo ID de MSP.
 

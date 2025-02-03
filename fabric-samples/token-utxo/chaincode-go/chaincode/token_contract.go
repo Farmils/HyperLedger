@@ -42,7 +42,7 @@ func (s *SmartContract) Mint(ctx contractapi.TransactionContextInterface, amount
 	if err != nil {
 		return nil, fmt.Errorf("failed to get MSPID: %v", err)
 	}
-	if clientMSPID != "Org1MSP" {
+	if clientMSPID != "Users" {
 		return nil, errors.New("client is not authorized to mint new tokens")
 	}
 
@@ -325,7 +325,7 @@ func (s *SmartContract) Initialize(ctx contractapi.TransactionContextInterface, 
 	if err != nil {
 		return false, fmt.Errorf("failed to get MSPID: %v", err)
 	}
-	if clientMSPID != "Org1MSP" {
+	if clientMSPID != "Users" {
 		return false, errors.New("client is not authorized to initialize contract")
 	}
 

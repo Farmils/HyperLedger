@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	mspID        = "Org1MSP"
+	mspID        = "Users"
 	cryptoPath   = "../../test-network/organizations/peerOrganizations/org1.example.com"
 	certPath     = cryptoPath + "/users/User1@org1.example.com/msp/signcerts"
 	keyPath      = cryptoPath + "/users/User1@org1.example.com/msp/keystore"

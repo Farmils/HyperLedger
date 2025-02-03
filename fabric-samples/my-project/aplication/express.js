@@ -55,7 +55,7 @@ app.use(express.json());
  * @description Фреймворк Express.js построен на концепции ПО промежуточного уровня (англ. middleware). Суть этого подхода в том, что запрос к каждому ресурсу обрабатывается не одним единственным действием контролера, а целым стеком функций.
  */
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // Разрешить запросы только с определённого источника
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5174'); // Разрешить запросы только с определённого источника
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT,DELETE'); // Разрешённые методы
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Разрешённые заголовки
 
@@ -66,14 +66,14 @@ app.use((req, res, next) => {
  * В chaincodeName вводим имя chaincode, которое мы указывали во время разворачивания контрактов во флаге -ccn.
  * В channelName вводим название канала блокчейна.
  */
-const channelName = 'blockchain2024';
-const chaincodeName = 'test22';
+const channelName = 'blockchain2025';
+const chaincodeName = 'set5';
 const contractName = 'User';
 const adminUserId = 'admin';
 const adminUserPasswd = 'adminpw';
 const orgMspIds = {
-    org1: 'Org1MSP',
-    org2: 'Org2MSP',
+    org1: 'Users',
+    org2: 'Bank',
 };
 
 /**

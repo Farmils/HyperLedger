@@ -6,12 +6,21 @@ import { Context, Contract, Info, Transaction } from 'fabric-contract-api';
 import { Asset } from './asset';
 import { KeyEndorsementPolicy } from 'fabric-shim';
 
-@Info({title: 'AssetContract', description: 'Asset Transfer Smart Contract, using State Based Endorsement(SBE), implemented in TypeScript' })
+@Info({
+    title: 'AssetContract',
+    description:
+        'Asset Transfer Smart Contract, using State Based Endorsement(SBE), implemented in TypeScript',
+})
 export class AssetContract extends Contract {
     // CreateAsset creates a new asset
     // CreateAsset sets the endorsement policy of the assetId Key, such that current owner Org Peer is required to endorse future updates
     @Transaction()
-    public async CreateAsset(ctx: Context, assetId: string, value: number, owner: string): Promise<void> {
+    public async CreateAsset(
+        ctx: Context,
+        assetId: string,
+        value: number,
+        owner: string,
+    ): Promise<void> {
         const exists = await this.AssetExists(ctx, assetId);
         if (exists) {
             throw new Error(`The asset ${assetId} already exists`);
@@ -30,7 +39,7 @@ export class AssetContract extends Contract {
         await AssetContract.setStateBasedEndorsement(ctx, assetId, [ownerOrg]);
 
         // Optionally, set the endorsement policy of the assetId Key, such that any 1 Org (N) out of the specified Orgs can endorse future updates
-        // await AssetContract.setStateBasedEndorsementNOutOf(ctx, assetId, 1, ["Org1MSP", "Org2MSP"]);
+        // await AssetContract.setStateBasedEndorsementNOutOf(ctx, assetId, 1, ["Users", "Bank"]);
     }
 
     // ReadAsset returns asset with given assetId
@@ -48,7 +57,11 @@ export class AssetContract extends Contract {
     // UpdateAsset updates an existing asset
     // UpdateAsset needs an endorsement of current owner Org Peer
     @Transaction()
-    public async UpdateAsset(ctx: Context, assetId: string, newValue: number): Promise<void> {
+    public async UpdateAsset(
+        ctx: Context,
+        assetId: string,
+        newValue: number,
+    ): Promise<void> {
         const assetString = await this.ReadAsset(ctx, assetId);
         const asset = JSON.parse(assetString) as Asset;
         asset.Value = newValue;
@@ -73,7 +86,12 @@ export class AssetContract extends Contract {
     // TransferAsset needs an endorsement of current owner Org Peer
     // TransferAsset re-sets the endorsement policy of the assetId Key, such that new owner Org Peer is required to endorse future updates
     @Transaction()
-    public async TransferAsset(ctx: Context, assetId: string, newOwner: string, newOwnerOrg: string): Promise<void> {
+    public async TransferAsset(
+        ctx: Context,
+        assetId: string,
+        newOwner: string,
+        newOwnerOrg: string,
+    ): Promise<void> {
         const assetString = await this.ReadAsset(ctx, assetId);
         const asset = JSON.parse(assetString) as Asset;
         asset.Owner = newOwner;
@@ -81,10 +99,12 @@ export class AssetContract extends Contract {
         // Update the asset
         await ctx.stub.putState(assetId, Buffer.from(JSON.stringify(asset)));
         // Re-Set the endorsement policy of the assetId Key, such that a new owner Org Peer is required to endorse future updates
-        await AssetContract.setStateBasedEndorsement(ctx, asset.ID, [newOwnerOrg]);
+        await AssetContract.setStateBasedEndorsement(ctx, asset.ID, [
+            newOwnerOrg,
+        ]);
 
         // Optionally, set the endorsement policy of the assetId Key, such that any 1 Org (N) out of the specified Orgs can endorse future updates
-        // await AssetContract.setStateBasedEndorsementNOutOf(ctx, assetId, 1, ["Org1MSP", "Org2MSP"]);
+        // await AssetContract.setStateBasedEndorsementNOutOf(ctx, assetId, 1, ["Users", "Bank"]);
     }
 
     // AssetExists returns true when asset with given ID exists
@@ -100,7 +120,11 @@ export class AssetContract extends Contract {
 
     // setStateBasedEndorsement sets an endorsement policy to the assetId Key
     // setStateBasedEndorsement enforces that the owner Org must endorse future update transactions for the specified assetId Key
-    private static async setStateBasedEndorsement(ctx: Context, assetId: string, ownerOrgs: string[]): Promise<void> {
+    private static async setStateBasedEndorsement(
+        ctx: Context,
+        assetId: string,
+        ownerOrgs: string[],
+    ): Promise<void> {
         const ep = new KeyEndorsementPolicy();
         ep.addOrgs('MEMBER', ...ownerOrgs);
         await ctx.stub.setStateValidationParameter(assetId, ep.getPolicy());
@@ -108,7 +132,12 @@ export class AssetContract extends Contract {
 
     // setStateBasedEndorsementNOutOf sets an endorsement policy to the assetId Key
     // setStateBasedEndorsementNOutOf enforces that a given number of Orgs (N) out of the specified Orgs must endorse future update transactions for the specified assetId Key.
-    private static async setStateBasedEndorsementNOutOf(ctx: Context, assetId: string, nOrgs: number, ownerOrgs: string[]): Promise<void> {
+    private static async setStateBasedEndorsementNOutOf(
+        ctx: Context,
+        assetId: string,
+        nOrgs: number,
+        ownerOrgs: string[],
+    ): Promise<void> {
         const ROLE_TYPE_MEMBER = 'MEMBER';
 
         // Use the KeyEndorsementPolicy helper form the chaincode libarries
@@ -116,6 +145,9 @@ export class AssetContract extends Contract {
         const keyEndorsementPolicy = new KeyEndorsementPolicy();
         keyEndorsementPolicy.addOrgs(ROLE_TYPE_MEMBER, ...ownerOrgs);
 
-        await ctx.stub.setStateValidationParameter(assetId, keyEndorsementPolicy.getPolicy());
+        await ctx.stub.setStateValidationParameter(
+            assetId,
+            keyEndorsementPolicy.getPolicy(),
+        );
     }
 }

@@ -12,7 +12,6 @@ For more information about event services on per-channel basis, visit the
 [Channel-based event service](https://hyperledger-fabric.readthedocs.io/en/latest/peer_event_services.html)
 page in the Fabric documentation.
 
-
 ## About the sample
 
 This sample includes smart contract and application code in multiple languages. In a use-case similar to basic asset transfer (see [asset-transfer-basic](../asset-transfer-basic) folder) this sample shows sending and receiving of events during create / update / delete of an asset, and during transfer of an asset to a new owner.
@@ -43,23 +42,26 @@ Note that the asset transfer implemented by the smart contract is a simplified s
 Like other samples, the Fabric test network is used to deploy and run this sample. Follow these steps in order:
 
 1. Create the test network and a channel (from the `test-network` folder).
+
    ```
    ./network.sh up createChannel -c mychannel -ca
    ```
 
 1. Deploy one of the smart contract implementations (from the `test-network` folder).
+
    ```
    # To deploy the Go chaincode implementation
-   ./network.sh deployCC -ccn events -ccp ../asset-transfer-events/chaincode-go/ -ccl go -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+   ./network.sh deployCC -ccn events -ccp ../asset-transfer-events/chaincode-go/ -ccl go -ccep "OR('Users.peer','Bank.peer')"
 
    # To deploy the JavaScript chaincode implementation
-   ./network.sh deployCC -ccn events -ccp ../asset-transfer-events/chaincode-javascript/ -ccl javascript -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+   ./network.sh deployCC -ccn events -ccp ../asset-transfer-events/chaincode-javascript/ -ccl javascript -ccep "OR('Users.peer','Bank.peer')"
 
    # To deploy the Java chaincode implementation
-   ./network.sh deployCC -ccn events -ccp ../asset-transfer-events/chaincode-java/ -ccl java -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+   ./network.sh deployCC -ccn events -ccp ../asset-transfer-events/chaincode-java/ -ccl java -ccep "OR('Users.peer','Bank.peer')"
    ```
 
 1. Run the application (from the `asset-transfer-events` folder).
+
    ```
    # To run the Go sample application
    cd application-gateway-go

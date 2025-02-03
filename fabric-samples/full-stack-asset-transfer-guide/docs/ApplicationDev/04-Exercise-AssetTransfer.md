@@ -7,18 +7,21 @@ There is already a **transfer** command implemented in [transfer.ts](../../appli
 1. Write an implementation for the `transferAsset()` method in [contract.ts](../../applications/trader-typescript/src/contract.ts). Look at the [API documentation for Contract](https://hyperledger.github.io/fabric-gateway/main/api/node/interfaces/Contract.html) and other methods within the **AssetTransfer** class for ideas on how to proceed.
 
 2. Recompile the application from your updated TypeScript:
-    ```bash
-    npm install
-    ```
-    > **Tip:** You can also leave `npm run build:watch` running in a terminal window to automatically rebuild your application on any code change.
+
+   ```bash
+   npm install
+   ```
+
+   > **Tip:** You can also leave `npm run build:watch` running in a terminal window to automatically rebuild your application on any code change.
 
 3. If you are using a new terminal window, set environment variables to point to resources required by the application.
-    ```bash
-    export ENDPOINT=org1peer-api.127-0-0-1.nip.io:8080
-    export MSP_ID=org1MSP
-    export CERTIFICATE=../../_cfg/uf/_msp/org1/org1admin/msp/signcerts/cert.pem
-    export PRIVATE_KEY=../../_cfg/uf/_msp/org1/org1admin/msp/keystore/cert_sk
-    ```
+
+   ```bash
+   export ENDPOINT=org1peer-api.127-0-0-1.nip.io:8080
+   export MSP_ID=Users
+   export CERTIFICATE=../../_cfg/uf/_msp/org1/org1admin/msp/signcerts/cert.pem
+   export PRIVATE_KEY=../../_cfg/uf/_msp/org1/org1admin/msp/keystore/cert_sk
+   ```
 
 4. Try it out! Use the **transfer** command to transfer assets to new owners with the same MSP ID.
 

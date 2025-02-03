@@ -47,12 +47,12 @@ data:
   # bootstrap peer is the other peer in the same org
   CORE_PEER_GOSSIP_BOOTSTRAP: org1-peer2:7051
   CORE_PEER_GOSSIP_EXTERNALENDPOINT: org1-peer1.${ORG1_NS}.svc.cluster.local:7051
-  CORE_PEER_LOCALMSPID: Org1MSP
+  CORE_PEER_LOCALMSPID: Users
   CORE_PEER_MSPCONFIGPATH: /var/hyperledger/fabric/organizations/peerOrganizations/org1.example.com/peers/org1-peer1.org1.example.com/msp
   CORE_OPERATIONS_LISTENADDRESS: 0.0.0.0:9443
   CORE_PEER_FILESYSTEMPATH: /var/hyperledger/fabric/data/org1-peer1.org1.example.com
   CORE_LEDGER_SNAPSHOTS_ROOTDIR: /var/hyperledger/fabric/data/org1-peer1.org1.example.com/snapshots
-  CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG: "{\"peername\":\"org1peer1\"}"
+  CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG: '{"peername":"org1peer1"}'
   FABRIC_K8S_BUILDER_OBJECT_NAME_PREFIX: org1-peer1-cc
   CORE_LEDGER_STATE_STATEDATABASE: CouchDB
   CORE_LEDGER_STATE_COUCHDBCONFIG_MAXRETRIESONSTARTUP: "20"
@@ -99,11 +99,11 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: "COUCHDB_USER"
-              value: "admin" 
+              value: "admin"
             - name: "COUCHDB_PASSWORD"
               value: "adminpw"
           ports:
-              - containerPort: 5984
+            - containerPort: 5984
       volumes:
         - name: fabric-volume
           persistentVolumeClaim:

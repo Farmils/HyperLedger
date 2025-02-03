@@ -248,7 +248,7 @@ public class TokenERC20ContractTest {
       ClientIdentity ci = mock(ClientIdentity.class);
       when(ctx.getClientIdentity()).thenReturn(ci);
       when(stub.getStringState(NAME_KEY.getValue())).thenReturn("ARBTToken");
-      when(ci.getMSPID()).thenReturn("Org2MSP");
+      when(ci.getMSPID()).thenReturn("Bank");
       when(ci.getId()).thenReturn(org1UserId);
       when(ctx.getStub()).thenReturn(stub);
       CompositeKey ck = mock(CompositeKey.class);
@@ -415,7 +415,7 @@ public class TokenERC20ContractTest {
       ClientIdentity ci = mock(ClientIdentity.class);
       when(stub.getStringState(NAME_KEY.getValue())).thenReturn("ARBTToken");
       when(ctx.getClientIdentity()).thenReturn(ci);
-      when(ci.getMSPID()).thenReturn("Org2MSP");
+      when(ci.getMSPID()).thenReturn("Bank");
       when(ci.getId()).thenReturn(spender);
       CompositeKey ck = mock(CompositeKey.class);
       when(stub.createCompositeKey(BALANCE_PREFIX.getValue(), spender)).thenReturn(ck);
@@ -440,7 +440,7 @@ public class TokenERC20ContractTest {
       ClientIdentity ci = mock(ClientIdentity.class);
       when(stub.getStringState(NAME_KEY.getValue())).thenReturn("ARBTToken");
       when(ctx.getClientIdentity()).thenReturn(ci);
-      when(ci.getMSPID()).thenReturn("Org1MSP");
+      when(ci.getMSPID()).thenReturn("Users");
       when(ci.getId()).thenReturn(org1UserId);
       CompositeKey ck = mock(CompositeKey.class);
       when(stub.createCompositeKey(BALANCE_PREFIX.getValue(), org1UserId)).thenReturn(ck);
@@ -522,7 +522,7 @@ public class TokenERC20ContractTest {
       when(ctx.getStub()).thenReturn(stub);
       ci = mock(ClientIdentity.class);
       when(ctx.getClientIdentity()).thenReturn(ci);
-      when(ci.getMSPID()).thenReturn("Org2MSP");
+      when(ci.getMSPID()).thenReturn("Bank");
       when(ci.getId()).thenReturn(spender);
       CompositeKey ckAllowance = mock(CompositeKey.class);
       when(stub.createCompositeKey(ALLOWANCE_PREFIX.getValue(), org1UserId, spender))
@@ -563,7 +563,7 @@ public class TokenERC20ContractTest {
       when(ctx.getStub()).thenReturn(stub);
       ci = mock(ClientIdentity.class);
       when(ctx.getClientIdentity()).thenReturn(ci);
-      when(ci.getMSPID()).thenReturn("Org2MSP");
+      when(ci.getMSPID()).thenReturn("Bank");
       when(ci.getId()).thenReturn(spender);
       CompositeKey ckAllowance = mock(CompositeKey.class);
       when(stub.createCompositeKey(ALLOWANCE_PREFIX.getValue(), org1UserId, spender))

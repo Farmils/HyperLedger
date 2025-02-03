@@ -309,7 +309,7 @@ class Users extends Contract {
         if (user.CountForfeit > 0)
             throw new Error('Невозможно продлить, есть неоплаченные штрафы');
 
-        const expirationDate = new Date(licenseId.serviceLife.json());
+        const expirationDate = new Date(license.serviceLife);
         console.log(expirationDate);
         console.log(typeof expirationDate);
         const renewalThreshold = new Date(expirationDate);
@@ -322,7 +322,7 @@ class Users extends Contract {
         }
 
         expirationDate.setMinutes(expirationDate.getMinutes() + 10 * 365);
-        l = expirationDate.toISOString();
+        license.serviceLife = expirationDate.toISOString();
         console.log(expirationDate);
 
         await ctx.stub.putState(

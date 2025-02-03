@@ -2,21 +2,20 @@
 SPDX-License-Identifier: Apache-2.0
 */
 
-'use strict';
+"use strict";
 
-const { Contract } = require('fabric-contract-api');
+const { Contract } = require("fabric-contract-api");
 
 // Define objectType names for prefix
-const balancePrefix = 'balance';
-const nftPrefix = 'nft';
-const approvalPrefix = 'approval';
+const balancePrefix = "balance";
+const nftPrefix = "nft";
+const approvalPrefix = "approval";
 
 // Define key names for options
-const nameKey = 'name';
-const symbolKey = 'symbol';
+const nameKey = "name";
+const symbolKey = "symbol";
 
 class TokenERC721Contract extends Contract {
-
     /**
      * BalanceOf counts all non-fungible tokens assigned to an owner
      *
@@ -30,7 +29,10 @@ class TokenERC721Contract extends Contract {
 
         // There is a key record for every non-fungible token in the format of balancePrefix.owner.tokenId.
         // BalanceOf() queries for and counts all records matching balancePrefix.owner.*
-        const iterator = await ctx.stub.getStateByPartialCompositeKey(balancePrefix, [owner]);
+        const iterator = await ctx.stub.getStateByPartialCompositeKey(
+            balancePrefix,
+            [owner],
+        );
 
         // Count the number of returned composite keys
         let balance = 0;
@@ -56,7 +58,7 @@ class TokenERC721Contract extends Contract {
         const nft = await this._readNFT(ctx, tokenId);
         const owner = nft.owner;
         if (!owner) {
-            throw new Error('No owner is assigned to this token');
+            throw new Error("No owner is assigned to this token");
         }
 
         return owner;
@@ -84,18 +86,24 @@ class TokenERC721Contract extends Contract {
         // or the approved client for this non-fungible token.
         const owner = nft.owner;
         const tokenApproval = nft.approved;
-        const operatorApproval = await this.IsApprovedForAll(ctx, owner, sender);
+        const operatorApproval = await this.IsApprovedForAll(
+            ctx,
+            owner,
+            sender,
+        );
         if (owner !== sender && tokenApproval !== sender && !operatorApproval) {
-            throw new Error('The sender is not allowed to transfer the non-fungible token');
+            throw new Error(
+                "The sender is not allowed to transfer the non-fungible token",
+            );
         }
 
         // Check if `from` is the current owner
         if (owner !== from) {
-            throw new Error('The from is not the current owner.');
+            throw new Error("The from is not the current owner.");
         }
 
         // Clear the approved client for this non-fungible token
-        nft.approved = '';
+        nft.approved = "";
 
         // Overwrite a non-fungible token to assign a new owner.
         nft.owner = to;
@@ -103,17 +111,26 @@ class TokenERC721Contract extends Contract {
         await ctx.stub.putState(nftKey, Buffer.from(JSON.stringify(nft)));
 
         // Remove a composite key from the balance of the current owner
-        const balanceKeyFrom = ctx.stub.createCompositeKey(balancePrefix, [from, tokenId]);
+        const balanceKeyFrom = ctx.stub.createCompositeKey(balancePrefix, [
+            from,
+            tokenId,
+        ]);
         await ctx.stub.deleteState(balanceKeyFrom);
 
         // Save a composite key to count the balance of a new owner
-        const balanceKeyTo = ctx.stub.createCompositeKey(balancePrefix, [to, tokenId]);
-        await ctx.stub.putState(balanceKeyTo, Buffer.from('\u0000'));
+        const balanceKeyTo = ctx.stub.createCompositeKey(balancePrefix, [
+            to,
+            tokenId,
+        ]);
+        await ctx.stub.putState(balanceKeyTo, Buffer.from("\u0000"));
 
         // Emit the Transfer event
         const tokenIdInt = parseInt(tokenId);
         const transferEvent = { from: from, to: to, tokenId: tokenIdInt };
-        ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
+        ctx.stub.setEvent(
+            "Transfer",
+            Buffer.from(JSON.stringify(transferEvent)),
+        );
 
         return true;
     }
@@ -137,9 +154,15 @@ class TokenERC721Contract extends Contract {
         // Check if the sender is the current owner of the non-fungible token
         // or an authorized operator of the current owner
         const owner = nft.owner;
-        const operatorApproval = await this.IsApprovedForAll(ctx, owner, sender);
+        const operatorApproval = await this.IsApprovedForAll(
+            ctx,
+            owner,
+            sender,
+        );
         if (owner !== sender && !operatorApproval) {
-            throw new Error('The sender is not the current owner nor an authorized operator');
+            throw new Error(
+                "The sender is not the current owner nor an authorized operator",
+            );
         }
 
         // Update the approved client of the non-fungible token
@@ -149,8 +172,15 @@ class TokenERC721Contract extends Contract {
 
         // Emit the Approval event
         const tokenIdInt = parseInt(tokenId);
-        const approvalEvent = { owner: owner, approved: approved, tokenId: tokenIdInt };
-        ctx.stub.setEvent('Approval', Buffer.from(JSON.stringify(approvalEvent)));
+        const approvalEvent = {
+            owner: owner,
+            approved: approved,
+            tokenId: tokenIdInt,
+        };
+        ctx.stub.setEvent(
+            "Approval",
+            Buffer.from(JSON.stringify(approvalEvent)),
+        );
 
         return true;
     }
@@ -170,13 +200,30 @@ class TokenERC721Contract extends Contract {
 
         const sender = ctx.clientIdentity.getID();
 
-        const approval = { owner: sender, operator: operator, approved: approved };
-        const approvalKey = ctx.stub.createCompositeKey(approvalPrefix, [sender, operator]);
-        await ctx.stub.putState(approvalKey, Buffer.from(JSON.stringify(approval)));
+        const approval = {
+            owner: sender,
+            operator: operator,
+            approved: approved,
+        };
+        const approvalKey = ctx.stub.createCompositeKey(approvalPrefix, [
+            sender,
+            operator,
+        ]);
+        await ctx.stub.putState(
+            approvalKey,
+            Buffer.from(JSON.stringify(approval)),
+        );
 
         // Emit the ApprovalForAll event
-        const approvalForAllEvent = { owner: sender, operator: operator, approved: approved };
-        ctx.stub.setEvent('ApprovalForAll', Buffer.from(JSON.stringify(approvalForAllEvent)));
+        const approvalForAllEvent = {
+            owner: sender,
+            operator: operator,
+            approved: approved,
+        };
+        ctx.stub.setEvent(
+            "ApprovalForAll",
+            Buffer.from(JSON.stringify(approvalForAllEvent)),
+        );
 
         return true;
     }
@@ -208,7 +255,10 @@ class TokenERC721Contract extends Contract {
         // Check contract options are already set first to execute the function
         await this.CheckInitialized(ctx);
 
-        const approvalKey = ctx.stub.createCompositeKey(approvalPrefix, [owner, operator]);
+        const approvalKey = ctx.stub.createCompositeKey(approvalPrefix, [
+            owner,
+            operator,
+        ]);
         const approvalBytes = await ctx.stub.getState(approvalKey);
         let approved;
         if (approvalBytes && approvalBytes.length > 0) {
@@ -242,7 +292,7 @@ class TokenERC721Contract extends Contract {
      *
      * @param {Context} ctx the transaction context
      * @returns {String} Returns the symbol of the token
-    */
+     */
     async Symbol(ctx) {
         // Check contract options are already set first to execute the function
         await this.CheckInitialized(ctx);
@@ -257,7 +307,7 @@ class TokenERC721Contract extends Contract {
      * @param {Context} ctx the transaction context
      * @param {string} tokenId The identifier for a non-fungible token
      * @returns {String} Returns the URI of the token
-    */
+     */
     async TokenURI(ctx, tokenId) {
         // Check contract options are already set first to execute the function
         await this.CheckInitialized(ctx);
@@ -281,7 +331,10 @@ class TokenERC721Contract extends Contract {
 
         // There is a key record for every non-fungible token in the format of nftPrefix.tokenId.
         // TotalSupply() queries for and counts all records matching nftPrefix.*
-        const iterator = await ctx.stub.getStateByPartialCompositeKey(nftPrefix, []);
+        const iterator = await ctx.stub.getStateByPartialCompositeKey(
+            nftPrefix,
+            [],
+        );
 
         // Count the number of returned composite keys
         let totalSupply = 0;
@@ -303,17 +356,20 @@ class TokenERC721Contract extends Contract {
      * @param {String} symbol The symbol of the token
      */
     async Initialize(ctx, name, symbol) {
-
         // Check minter authorization - this sample assumes Org1 is the issuer with privilege to initialize contract (set the name and symbol)
         const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to set the name and symbol of the token');
+        if (clientMSPID !== "Users") {
+            throw new Error(
+                "client is not authorized to set the name and symbol of the token",
+            );
         }
 
         // Check contract options are not already set, client is not authorized to change them once intitialized
         const nameBytes = await ctx.stub.getState(nameKey);
         if (nameBytes && nameBytes.length > 0) {
-            throw new Error('contract options are already set, client is not authorized to change them');
+            throw new Error(
+                "contract options are already set, client is not authorized to change them",
+            );
         }
 
         await ctx.stub.putState(nameKey, Buffer.from(name));
@@ -328,15 +384,15 @@ class TokenERC721Contract extends Contract {
      * @param {String} tokenId Unique ID of the non-fungible token to be minted
      * @param {String} tokenURI URI containing metadata of the minted non-fungible token
      * @returns {Object} Return the non-fungible token object
-    */
+     */
     async MintWithTokenURI(ctx, tokenId, tokenURI) {
         // Check contract options are already set first to execute the function
         await this.CheckInitialized(ctx);
 
         // Check minter authorization - this sample assumes Org1 is the issuer with privilege to mint a new token
         const clientMSPID = ctx.clientIdentity.getMSPID();
-        if (clientMSPID !== 'Org1MSP') {
-            throw new Error('client is not authorized to mint new tokens');
+        if (clientMSPID !== "Users") {
+            throw new Error("client is not authorized to mint new tokens");
         }
 
         // Get ID of submitting client identity
@@ -351,12 +407,14 @@ class TokenERC721Contract extends Contract {
         // Add a non-fungible token
         const tokenIdInt = parseInt(tokenId);
         if (isNaN(tokenIdInt)) {
-            throw new Error(`The tokenId ${tokenId} is invalid. tokenId must be an integer`);
+            throw new Error(
+                `The tokenId ${tokenId} is invalid. tokenId must be an integer`,
+            );
         }
         const nft = {
             tokenId: tokenIdInt,
             owner: minter,
-            tokenURI: tokenURI
+            tokenURI: tokenURI,
         };
         const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
         await ctx.stub.putState(nftKey, Buffer.from(JSON.stringify(nft)));
@@ -364,12 +422,18 @@ class TokenERC721Contract extends Contract {
         // A composite key would be balancePrefix.owner.tokenId, which enables partial
         // composite key query to find and count all records matching balance.owner.*
         // An empty value would represent a delete, so we simply insert the null character.
-        const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [minter, tokenId]);
-        await ctx.stub.putState(balanceKey, Buffer.from('\u0000'));
+        const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [
+            minter,
+            tokenId,
+        ]);
+        await ctx.stub.putState(balanceKey, Buffer.from("\u0000"));
 
         // Emit the Transfer event
-        const transferEvent = { from: '0x0', to: minter, tokenId: tokenIdInt };
-        ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
+        const transferEvent = { from: "0x0", to: minter, tokenId: tokenIdInt };
+        ctx.stub.setEvent(
+            "Transfer",
+            Buffer.from(JSON.stringify(transferEvent)),
+        );
 
         return nft;
     }
@@ -390,7 +454,9 @@ class TokenERC721Contract extends Contract {
         // Check if a caller is the owner of the non-fungible token
         const nft = await this._readNFT(ctx, tokenId);
         if (nft.owner !== owner) {
-            throw new Error(`Non-fungible token ${tokenId} is not owned by ${owner}`);
+            throw new Error(
+                `Non-fungible token ${tokenId} is not owned by ${owner}`,
+            );
         }
 
         // Delete the token
@@ -398,13 +464,19 @@ class TokenERC721Contract extends Contract {
         await ctx.stub.deleteState(nftKey);
 
         // Remove a composite key from the balance of the owner
-        const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [owner, tokenId]);
+        const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [
+            owner,
+            tokenId,
+        ]);
         await ctx.stub.deleteState(balanceKey);
 
         // Emit the Transfer event
         const tokenIdInt = parseInt(tokenId);
-        const transferEvent = { from: owner, to: '0x0', tokenId: tokenIdInt };
-        ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
+        const transferEvent = { from: owner, to: "0x0", tokenId: tokenIdInt };
+        ctx.stub.setEvent(
+            "Transfer",
+            Buffer.from(JSON.stringify(transferEvent)),
+        );
 
         return true;
     }
@@ -413,7 +485,9 @@ class TokenERC721Contract extends Contract {
         const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
         const nftBytes = await ctx.stub.getState(nftKey);
         if (!nftBytes || nftBytes.length === 0) {
-            throw new Error(`The tokenId ${tokenId} is invalid. It does not exist`);
+            throw new Error(
+                `The tokenId ${tokenId} is invalid. It does not exist`,
+            );
         }
         const nft = JSON.parse(nftBytes.toString());
         return nft;
@@ -453,10 +527,12 @@ class TokenERC721Contract extends Contract {
     }
 
     // Checks that contract options have been already initialized
-    async CheckInitialized(ctx){
+    async CheckInitialized(ctx) {
         const nameBytes = await ctx.stub.getState(nameKey);
         if (!nameBytes || nameBytes.length === 0) {
-            throw new Error('contract options need to be set before calling any function, call Initialize() to initialize contract');
+            throw new Error(
+                "contract options need to be set before calling any function, call Initialize() to initialize contract",
+            );
         }
     }
 }

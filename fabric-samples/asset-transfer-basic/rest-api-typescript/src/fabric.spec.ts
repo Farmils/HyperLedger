@@ -55,7 +55,7 @@ describe('Fabric', () => {
         it('creates a wallet containing identities for both orgs', async () => {
             const wallet = await createWallet();
 
-            expect(await wallet.list()).toStrictEqual(['Org1MSP', 'Org2MSP']);
+            expect(await wallet.list()).toStrictEqual(['Users', 'Bank']);
         });
     });
 
@@ -68,7 +68,7 @@ describe('Fabric', () => {
             const gateway = await createGateway(
                 connectionProfile,
                 identity,
-                mockWallet
+                mockWallet,
             );
 
             expect(gateway.connect).toBeCalledWith(
@@ -79,7 +79,7 @@ describe('Fabric', () => {
                     discovery: expect.any(Object),
                     eventHandlerOptions: expect.any(Object),
                     queryHandlerOptions: expect.any(Object),
-                })
+                }),
             );
         });
     });
@@ -91,7 +91,7 @@ describe('Fabric', () => {
             await getNetwork(mockGateway);
 
             expect(mockGateway.getNetwork).toHaveBeenCalledWith(
-                config.channelName
+                config.channelName,
             );
         });
     });
@@ -136,14 +136,14 @@ describe('Fabric', () => {
                 mockContract,
                 'txn',
                 'arga',
-                'argb'
+                'argb',
             );
             expect(result.toString()).toBe(mockPayload.toString());
         });
 
         it('throws an AssetExistsError an asset already exists error occurs', async () => {
             mockTransaction.evaluate.mockRejectedValue(
-                new Error('The asset JSCHAINCODE already exists')
+                new Error('The asset JSCHAINCODE already exists'),
             );
 
             await expect(async () => {
@@ -153,7 +153,7 @@ describe('Fabric', () => {
 
         it('throws an AssetNotFoundError if an asset does not exist error occurs', async () => {
             mockTransaction.evaluate.mockRejectedValue(
-                new Error('The asset JSCHAINCODE does not exist')
+                new Error('The asset JSCHAINCODE does not exist'),
             );
 
             await expect(async () => {
@@ -164,8 +164,8 @@ describe('Fabric', () => {
         it('throws a TransactionNotFoundError if a transaction not found error occurs', async () => {
             mockTransaction.evaluate.mockRejectedValue(
                 new Error(
-                    'Failed to get transaction with id txn, error Entry not found in index'
-                )
+                    'Failed to get transaction with id txn, error Entry not found in index',
+                ),
             );
 
             await expect(async () => {
@@ -196,14 +196,14 @@ describe('Fabric', () => {
                 mockTransaction,
                 'txn',
                 'arga',
-                'argb'
+                'argb',
             );
             expect(result.toString()).toBe(mockPayload.toString());
         });
 
         it('throws an AssetExistsError an asset already exists error occurs', async () => {
             mockTransaction.submit.mockRejectedValue(
-                new Error('The asset JSCHAINCODE already exists')
+                new Error('The asset JSCHAINCODE already exists'),
             );
 
             await expect(async () => {
@@ -212,14 +212,14 @@ describe('Fabric', () => {
                     'mspid',
                     'txn',
                     'arga',
-                    'argb'
+                    'argb',
                 );
             }).rejects.toThrow(AssetExistsError);
         });
 
         it('throws an AssetNotFoundError if an asset does not exist error occurs', async () => {
             mockTransaction.submit.mockRejectedValue(
-                new Error('The asset JSCHAINCODE does not exist')
+                new Error('The asset JSCHAINCODE does not exist'),
             );
 
             await expect(async () => {
@@ -228,7 +228,7 @@ describe('Fabric', () => {
                     'mspid',
                     'txn',
                     'arga',
-                    'argb'
+                    'argb',
                 );
             }).rejects.toThrow(AssetNotFoundError);
         });
@@ -236,8 +236,8 @@ describe('Fabric', () => {
         it('throws a TransactionNotFoundError if a transaction not found error occurs', async () => {
             mockTransaction.submit.mockRejectedValue(
                 new Error(
-                    'Failed to get transaction with id txn, error Entry not found in index'
-                )
+                    'Failed to get transaction with id txn, error Entry not found in index',
+                ),
             );
 
             await expect(async () => {
@@ -246,7 +246,7 @@ describe('Fabric', () => {
                     'mspid',
                     'txn',
                     'arga',
-                    'argb'
+                    'argb',
                 );
             }).rejects.toThrow(TransactionNotFoundError);
         });
@@ -260,7 +260,7 @@ describe('Fabric', () => {
                     'mspid',
                     'txn',
                     'arga',
-                    'argb'
+                    'argb',
                 );
             }).rejects.toThrow(Error);
         });
@@ -274,20 +274,20 @@ describe('Fabric', () => {
                 fabricProtos.protos.TxValidationCode.VALID;
             const processedTransactionBuffer = Buffer.from(
                 fabricProtos.protos.ProcessedTransaction.encode(
-                    processedTransactionProto
-                ).finish()
+                    processedTransactionProto,
+                ).finish(),
             );
 
             const mockTransaction = mock<Transaction>();
             mockTransaction.evaluate.mockResolvedValue(
-                processedTransactionBuffer
+                processedTransactionBuffer,
             );
             const mockContract = mock<Contract>();
             mockContract.createTransaction
                 .calledWith('GetTransactionByID')
                 .mockReturnValue(mockTransaction);
             expect(
-                await getTransactionValidationCode(mockContract, 'txn1')
+                await getTransactionValidationCode(mockContract, 'txn1'),
             ).toBe('VALID');
         });
     });
@@ -299,8 +299,8 @@ describe('Fabric', () => {
             mockBlockchainInfoProto.height = 42;
             const mockBlockchainInfoBuffer = Buffer.from(
                 fabricProtos.common.BlockchainInfo.encode(
-                    mockBlockchainInfoProto
-                ).finish()
+                    mockBlockchainInfoProto,
+                ).finish(),
             );
             const mockContract = mock<Contract>();
             mockContract.evaluateTransaction

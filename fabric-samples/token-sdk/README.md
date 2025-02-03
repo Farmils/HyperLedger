@@ -6,11 +6,11 @@ Several instances of this service form a Layer 2 network that can transact among
 
 This sample is intended to get familiar with the features of the Token SDK and as a starting point for a proof of concept. The sample contains a basic development setup with:
 
--   An issuer service
--   An auditor service
--   Two owner services, with wallets for Alice and Bob (on Owner 1), and Carlos and Dan (on Owner 2)
--   A Certificate Authority
--   Configuration to use a Fabric test network.
+- An issuer service
+- An auditor service
+- Two owner services, with wallets for Alice and Bob (on Owner 1), and Carlos and Dan (on Owner 2)
+- A Certificate Authority
+- Configuration to use a Fabric test network.
 
 From now on we'll call the services for the issuer, auditor and owners 'nodes' (not to be confused with Hyperledger Fabric peer nodes). Each of them runs as a separate application containing a REST API, the Fabric Smart Client and the Token SDK. The nodes talk to each other via a protocol called libp2p to create token transactions, and each of them also has a Hyperledger Fabric user to be able to submit the transaction to the settlement layer. The settlement layer is just any Fabric network that runs the Token Chaincode, which is configured with the identities of the issuer, auditor and CA to be able to validate transactions.
 
@@ -42,39 +42,38 @@ From now on we'll call the services for the issuer, auditor and owners 'nodes' (
     - [Add a user / account](#add-a-user--account)
     - [Run the service directly (instead of with docker-compose)](#run-the-service-directly-instead-of-with-docker-compose)
 
-
 ## Features
 
 Main flows:
 
-- [X] issue token
-- [X] transfer
-- [X] redeem / burn
-- [X] owner get balances
-- [X] owner transaction history
+- [x] issue token
+- [x] transfer
+- [x] redeem / burn
+- [x] owner get balances
+- [x] owner transaction history
 - [ ] auditor get balances
-- [X] auditor transaction history
+- [x] auditor transaction history
 - [ ] issuer transaction history
 - [ ] swap
 
 Additional features:
 
-- [X] Documented REST API
-- [X] Basic end to end tests
-- [X] Support for multiple token types
-- [X] Multiple accounts per node
-- [X] Use Idemix (privacy preserving) accounts created by a Fabric CA
-- [X] Pre-configured and easy to start for development
+- [x] Documented REST API
+- [x] Basic end to end tests
+- [x] Support for multiple token types
+- [x] Multiple accounts per node
+- [x] Use Idemix (privacy preserving) accounts created by a Fabric CA
+- [x] Pre-configured and easy to start for development
 
 Out of scope for now:
 
--   HTLC locks (hashed timelock contracts)
--   Register/enroll new token accounts on a running network
--   Business flows for redemption or issuance
--   Advanced transaction history (queries, rolling balance, pagination, etc)
--   Denylist / revocation and other business logic for auditor
--   Idemix users to submit the transactions to Fabric anonymously
--   Production configuration (e.g. deployment, networking, security, resilience, key management)
+- HTLC locks (hashed timelock contracts)
+- Register/enroll new token accounts on a running network
+- Business flows for redemption or issuance
+- Advanced transaction history (queries, rolling balance, pagination, etc)
+- Denylist / revocation and other business logic for auditor
+- Idemix users to submit the transactions to Fabric anonymously
+- Production configuration (e.g. deployment, networking, security, resilience, key management)
 
 ## Getting started
 
@@ -105,7 +104,8 @@ export PATH=</your/path/to/>fabric-samples/bin:$PATH
 
 Validate that the CA is at 1.5.7 by executing `fabric-ca-client version`.
 
-> Note: you can run this code from anywhere. If you are *not* running it from the fabric-samples/token-sdk folder, also set the following environment variable:
+> Note: you can run this code from anywhere. If you are _not_ running it from the fabric-samples/token-sdk folder, also set the following environment variable:
+>
 > ```bash
 > export TEST_NETWORK_HOME=</your/path/to>/fabric-samples/test-network
 > ```
@@ -139,7 +139,7 @@ When you're done and want to delete everything:
 The services are accessible on the following ports:
 
 | port | service                  |
-|------|--------------------------|
+| ---- | ------------------------ |
 | 8080 | API documentation (web)  |
 | 9000 | auditor                  |
 | 9100 | issuer                   |
@@ -154,7 +154,7 @@ Now let's issue and transfer some tokens! View the API documentation and try som
 curl -X POST http://localhost:9100/api/v1/issuer/issue -H 'Content-Type: application/json' -d '{
     "amount": {"code": "TOK","value": 1000},
     "counterparty": {"node": "owner1","account": "alice"},
-    "message": "hello world!"    
+    "message": "hello world!"
 }'
 
 curl -X GET http://localhost:9200/api/v1/owner/accounts
@@ -163,7 +163,7 @@ curl -X GET http://localhost:9300/api/v1/owner/accounts
 curl -X POST http://localhost:9200/api/v1/owner/accounts/alice/transfer -H 'Content-Type: application/json' -d '{
     "amount": {"code": "TOK","value": 100},
     "counterparty": {"node": "owner2","account": "dan"},
-    "message": "hello dan!"    
+    "message": "hello dan!"
 }'
 
 curl -X GET http://localhost:9300/api/v1/owner/accounts/dan/transactions
@@ -185,6 +185,7 @@ It may look simple from the outside, but there's a lot going on to securely and 
 2. **Get Endorsements**: Alice (or more precisely the TransferView in the Owner 1 node) now submits the transaction to the auditor, who validates and stores it. The auditor _may_ enforce any specific business logic that is needed for this token in this ecosystem (for instance a transaction or holding limit).
 
    Alice then submits the transaction (which is now also signed by the auditor) to the Token Chaincode which is running on the Fabric peers. The chaincode verifies that all the proofs are valid and all the necessary signatures are there. Note that the peer and token chaincode cannot see what is transferred between who thanks to the zero knowledge proofs.
+
 3. **Commit Transaction**: Alice submits the endorsed Fabric transaction to the ordering service. Alice (Owner 1), dan (Owner 2) and the Auditor nodes have been listening for Fabric events involving this transaction. When receiving the 'commit' event, they change the status of the stored transaction to 'Confirmed'. The transaction is now final; dan owns the 100 TOK.
 
 The names of the Views below correspond to the code in `owner/service/transfer.go`, `owner/service/accept.go` and `auditor/service/audit.go`.
@@ -203,10 +204,10 @@ In this step, we create all the identities which are used by the Token network. 
 
 The following crypto will be generated:
 
- - Fabric Smart Client node identities, used by the nodes to authenticate each other
- - Token Issuer identity (x509 certificate and private key)
- - Token Auditor identity (x509 certificate and private key)
- - Owner identities (idemix credentials)
+- Fabric Smart Client node identities, used by the nodes to authenticate each other
+- Token Issuer identity (x509 certificate and private key)
+- Token Auditor identity (x509 certificate and private key)
+- Owner identities (idemix credentials)
 
 ```bash
 mkdir -p keys/ca
@@ -214,8 +215,8 @@ docker-compose -f compose-ca.yaml up -d
 ./scripts/enroll-users.sh
 ```
 
-> If you want, you can stop the CA now. You don't need it unless you want to register more users. 
-> 
+> If you want, you can stop the CA now. You don't need it unless you want to register more users.
+>
 > ```bash
 > docker-compose -f compose-ca.yaml down
 > ```
@@ -230,7 +231,7 @@ tokengen gen dlog --base 300 --exponent 5 --issuers keys/issuer/iss/msp --idemix
 
 #### Start Fabric and install the chaincode
 
-For simplicity, in this sample all nodes use the credentials of User1 from Org1MSP and have Peer1 as a trusted peer. In a more serious setup, each instance would have its own (idemix) Fabric user and _may_ have it's own MSP and peers, depending on the network topology and trust relationships.
+For simplicity, in this sample all nodes use the credentials of User1 from Users and have Peer1 as a trusted peer. In a more serious setup, each instance would have its own (idemix) Fabric user and _may_ have it's own MSP and peers, depending on the network topology and trust relationships.
 
 Start a Fabric sample network and deploy the Token Chaincode as a service:
 
@@ -242,6 +243,7 @@ mkdir -p keys/fabric && cp -r ../test-network/organizations keys/fabric/
 ```
 
 > To fully remove the whole network:
+>
 > ```bash
 > docker stop peer0org1_tokenchaincode_ccaas peer0org2_tokenchaincode_ccaas
 > ../test-network/network.sh" down
@@ -291,7 +293,7 @@ go test ./e2e -count=1 -v
 
 ### Code structure
 
-This repo contains 3 different, isolated golang applications, one for each of the roles: *issuer*, *auditor*, and *owner*. They are maintained separately and each have their own dependencies. In a production scenario these would have their own lifecycle, and most likely be maintained and deployed by different organizations.
+This repo contains 3 different, isolated golang applications, one for each of the roles: _issuer_, _auditor_, and _owner_. They are maintained separately and each have their own dependencies. In a production scenario these would have their own lifecycle, and most likely be maintained and deployed by different organizations.
 
 The code structure of each of the roles is the same. There is overlap between the roles; each has the boilerplate code to start the Fabric Smart Client and Token SDK. The main.go is almost identical; the only difference is which 'responders' the application registers. Also the contents of the routes and the services will depend on the features that a role needs:
 
@@ -318,7 +320,7 @@ auditor
     └── history.go
 ```
 
-As you can see, the business logic is all in the 'service' directory. The 'routes' are purely the code needed for the REST API. We chose to use *openapi-codegen* to generate the code for the routes, and *echo* as the server. The 'routes' package is just the presentation layer; you could easily replace it and call the code from the 'service' package from somewhere else. For instance if you wanted to create a CLI application for the issuer!
+As you can see, the business logic is all in the 'service' directory. The 'routes' are purely the code needed for the REST API. We chose to use _openapi-codegen_ to generate the code for the routes, and _echo_ as the server. The 'routes' package is just the presentation layer; you could easily replace it and call the code from the 'service' package from somewhere else. For instance if you wanted to create a CLI application for the issuer!
 
 ![dependencies](./dependencies.png)
 
@@ -343,10 +345,10 @@ oapi-codegen -config e2e/oapi-client.yaml swagger.yaml
 
 Token SDK and Fabric Smart Client are under active development. To upgrade to the latest versions:
 
--   change the commit hash of fabric-smart-client and fabric-token-sdk in {auditor,issuer,owner}/go.mod (and do `go mod tidy`)
--   change the commit hash in tokenchaincode/Dockerfile
--   install tokengen with the new commit hash
--   update the readme
+- change the commit hash of fabric-smart-client and fabric-token-sdk in {auditor,issuer,owner}/go.mod (and do `go mod tidy`)
+- change the commit hash in tokenchaincode/Dockerfile
+- install tokengen with the new commit hash
+- update the readme
 
 ### Use another Fabric network
 
@@ -381,10 +383,10 @@ For the paths you have two options:
 
 1. Find/replace all instances of /var/fsc in the conf directory with the path to this repo. **Or**
 2. Create a symlink to this folder to make the configuration files work (they don't play nice with relative paths):
-    ```bash
-    sudo ln -s "${PWD}" /var/fsc 
-    ```
-    The advantage of this approach is that the configuration is portable across developer laptops and works with docker-compose as well as without.
+   ```bash
+   sudo ln -s "${PWD}" /var/fsc
+   ```
+   The advantage of this approach is that the configuration is portable across developer laptops and works with docker-compose as well as without.
 
 Start the blockchain and deploy the chaincode (see above).
 

@@ -33,7 +33,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "LOG_LEVEL" should be one of [fatal, error, warn, info, debug, trace, silent]'
+                'env-var: "LOG_LEVEL" should be one of [fatal, error, warn, info, debug, trace, silent]',
             );
         });
     });
@@ -55,7 +55,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "PORT" cannot assign a port number greater than 65535. An example of a valid value would be: 3000'
+                'env-var: "PORT" cannot assign a port number greater than 65535. An example of a valid value would be: 3000',
             );
         });
     });
@@ -77,7 +77,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "SUBMIT_JOB_BACKOFF_TYPE" should be one of [fixed, exponential]'
+                'env-var: "SUBMIT_JOB_BACKOFF_TYPE" should be one of [fixed, exponential]',
             );
         });
     });
@@ -99,7 +99,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "SUBMIT_JOB_BACKOFF_DELAY" should be a valid integer. An example of a valid value would be: 3000'
+                'env-var: "SUBMIT_JOB_BACKOFF_DELAY" should be a valid integer. An example of a valid value would be: 3000',
             );
         });
     });
@@ -121,7 +121,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "SUBMIT_JOB_ATTEMPTS" should be a valid integer. An example of a valid value would be: 5'
+                'env-var: "SUBMIT_JOB_ATTEMPTS" should be a valid integer. An example of a valid value would be: 5',
             );
         });
     });
@@ -143,7 +143,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "SUBMIT_JOB_CONCURRENCY" should be a valid integer. An example of a valid value would be: 5'
+                'env-var: "SUBMIT_JOB_CONCURRENCY" should be a valid integer. An example of a valid value would be: 5',
             );
         });
     });
@@ -165,7 +165,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "MAX_COMPLETED_SUBMIT_JOBS" should be a valid integer. An example of a valid value would be: 1000'
+                'env-var: "MAX_COMPLETED_SUBMIT_JOBS" should be a valid integer. An example of a valid value would be: 1000',
             );
         });
     });
@@ -187,7 +187,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "MAX_FAILED_SUBMIT_JOBS" should be a valid integer. An example of a valid value would be: 1000'
+                'env-var: "MAX_FAILED_SUBMIT_JOBS" should be a valid integer. An example of a valid value would be: 1000',
             );
         });
     });
@@ -209,7 +209,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "SUBMIT_JOB_QUEUE_SCHEDULER" should be either "true", "false", "TRUE", or "FALSE". An example of a valid value would be: true'
+                'env-var: "SUBMIT_JOB_QUEUE_SCHEDULER" should be either "true", "false", "TRUE", or "FALSE". An example of a valid value would be: true',
             );
         });
     });
@@ -231,15 +231,15 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "AS_LOCAL_HOST" should be either "true", "false", "TRUE", or "FALSE". An example of a valid value would be: true'
+                'env-var: "AS_LOCAL_HOST" should be either "true", "false", "TRUE", or "FALSE". An example of a valid value would be: true',
             );
         });
     });
 
     describe('mspIdOrg1', () => {
-        it('defaults to "Org1MSP"', () => {
+        it('defaults to "Users"', () => {
             const config = require('./config');
-            expect(config.mspIdOrg1).toBe('Org1MSP');
+            expect(config.mspIdOrg1).toBe('Users');
         });
 
         it('can be configured using the "HLF_MSP_ID_ORG1" environment variable', () => {
@@ -250,9 +250,9 @@ describe('Config values', () => {
     });
 
     describe('mspIdOrg2', () => {
-        it('defaults to "Org2MSP"', () => {
+        it('defaults to "Bank"', () => {
             const config = require('./config');
-            expect(config.mspIdOrg2).toBe('Org2MSP');
+            expect(config.mspIdOrg2).toBe('Bank');
         });
 
         it('can be configured using the "HLF_MSP_ID_ORG2" environment variable', () => {
@@ -305,7 +305,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_COMMIT_TIMEOUT" should be a valid integer. An example of a valid value would be: 300'
+                'env-var: "HLF_COMMIT_TIMEOUT" should be a valid integer. An example of a valid value would be: 300',
             );
         });
     });
@@ -327,7 +327,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_ENDORSE_TIMEOUT" should be a valid integer. An example of a valid value would be: 30'
+                'env-var: "HLF_ENDORSE_TIMEOUT" should be a valid integer. An example of a valid value would be: 30',
             );
         });
     });
@@ -349,7 +349,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_QUERY_TIMEOUT" should be a valid integer. An example of a valid value would be: 3'
+                'env-var: "HLF_QUERY_TIMEOUT" should be a valid integer. An example of a valid value would be: 3',
             );
         });
     });
@@ -360,7 +360,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_CONNECTION_PROFILE_ORG1" is a required variable, but it was not set. An example of a valid value would be: {"name":"test-network-org1","version":"1.0.0","client":{"organization":"Org1" ... }'
+                'env-var: "HLF_CONNECTION_PROFILE_ORG1" is a required variable, but it was not set. An example of a valid value would be: {"name":"test-network-org1","version":"1.0.0","client":{"organization":"Org1" ... }',
             );
         });
 
@@ -378,7 +378,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_CONNECTION_PROFILE_ORG1" should be valid (parseable) JSON. An example of a valid value would be: {"name":"test-network-org1","version":"1.0.0","client":{"organization":"Org1" ... }'
+                'env-var: "HLF_CONNECTION_PROFILE_ORG1" should be valid (parseable) JSON. An example of a valid value would be: {"name":"test-network-org1","version":"1.0.0","client":{"organization":"Org1" ... }',
             );
         });
     });
@@ -389,7 +389,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_CERTIFICATE_ORG1" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----\\n"'
+                'env-var: "HLF_CERTIFICATE_ORG1" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----\\n"',
             );
         });
 
@@ -406,7 +406,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_PRIVATE_KEY_ORG1" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"'
+                'env-var: "HLF_PRIVATE_KEY_ORG1" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"',
             );
         });
 
@@ -423,7 +423,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_CONNECTION_PROFILE_ORG2" is a required variable, but it was not set. An example of a valid value would be: {"name":"test-network-org2","version":"1.0.0","client":{"organization":"Org2" ... }'
+                'env-var: "HLF_CONNECTION_PROFILE_ORG2" is a required variable, but it was not set. An example of a valid value would be: {"name":"test-network-org2","version":"1.0.0","client":{"organization":"Org2" ... }',
             );
         });
 
@@ -441,7 +441,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_CONNECTION_PROFILE_ORG2" should be valid (parseable) JSON. An example of a valid value would be: {"name":"test-network-org2","version":"1.0.0","client":{"organization":"Org2" ... }'
+                'env-var: "HLF_CONNECTION_PROFILE_ORG2" should be valid (parseable) JSON. An example of a valid value would be: {"name":"test-network-org2","version":"1.0.0","client":{"organization":"Org2" ... }',
             );
         });
     });
@@ -452,7 +452,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_CERTIFICATE_ORG2" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----\\n"'
+                'env-var: "HLF_CERTIFICATE_ORG2" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----\\n"',
             );
         });
 
@@ -469,7 +469,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "HLF_PRIVATE_KEY_ORG2" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"'
+                'env-var: "HLF_PRIVATE_KEY_ORG2" is a required variable, but it was not set. An example of a valid value would be: "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"',
             );
         });
 
@@ -510,7 +510,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "REDIS_PORT" cannot assign a port number greater than 65535. An example of a valid value would be: 6379'
+                'env-var: "REDIS_PORT" cannot assign a port number greater than 65535. An example of a valid value would be: 6379',
             );
         });
     });
@@ -547,7 +547,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "ORG1_APIKEY" is a required variable, but it was not set. An example of a valid value would be: 123'
+                'env-var: "ORG1_APIKEY" is a required variable, but it was not set. An example of a valid value would be: 123',
             );
         });
 
@@ -564,7 +564,7 @@ describe('Config values', () => {
             expect(() => {
                 require('./config');
             }).toThrow(
-                'env-var: "ORG2_APIKEY" is a required variable, but it was not set. An example of a valid value would be: 456'
+                'env-var: "ORG2_APIKEY" is a required variable, but it was not set. An example of a valid value would be: 456',
             );
         });
 

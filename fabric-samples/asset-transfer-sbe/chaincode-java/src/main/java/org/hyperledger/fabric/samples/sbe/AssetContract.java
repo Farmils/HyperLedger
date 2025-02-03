@@ -74,7 +74,7 @@ public final class AssetContract implements ContractInterface {
         setStateBasedEndorsement(ctx, assetId, List.of(ownerOrg));
 
         // Optionally, set the endorsement policy of the assetId Key, such that any 1 Org (N) out of the specified Orgs can endorse future updates
-        // setStateBasedEndorsementNOutOf(ctx, assetId, 1, new String[]{"Org1MSP", "Org2MSP"});
+        // setStateBasedEndorsementNOutOf(ctx, assetId, 1, new String[]{"Users", "Bank"});
 
         return asset;
     }
@@ -168,7 +168,7 @@ public final class AssetContract implements ContractInterface {
         setStateBasedEndorsement(ctx, assetId, List.of(newOwnerOrg));
 
         // Optionally, set the endorsement policy of the assetId Key, such that any 1 Org (N) out of the specified Orgs can endorse future updates
-        // setStateBasedEndorsementNOutOf(ctx, assetId, 1, List.of("Org1MSP", "Org2MSP"));
+        // setStateBasedEndorsementNOutOf(ctx, assetId, 1, List.of("Users", "Bank"));
 
         return asset;
     }

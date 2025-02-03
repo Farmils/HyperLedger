@@ -26,9 +26,7 @@ _"But - I just want to write some chaincode!"_
 2. Preparing a `type=k8s` chaincode package specifying the unique and immutable [container image digest](https://github.com/opencontainers/image-spec/blob/main/descriptor.md#digests).
 3. Using the `peer` CLI binaries to install and commit the smart contract to a channel.
 
-
 ![Fabric k8s Builder](../images/CloudReady/30-chaincode.png)
-
 
 ## 执行
 
@@ -38,7 +36,6 @@ just check-network
 
 ```
 
-
 ## 设置peer命令行配置
 
 ```shell
@@ -46,8 +43,8 @@ just check-network
 export ORG1_PEER1_ADDRESS=${WORKSHOP_NAMESPACE}-org1-peer1-peer.${WORKSHOP_INGRESS_DOMAIN}:443
 export ORG1_PEER2_ADDRESS=${WORKSHOP_NAMESPACE}-org1-peer2-peer.${WORKSHOP_INGRESS_DOMAIN}:443
 
-# org1-peer1: 
-export CORE_PEER_LOCALMSPID=Org1MSP
+# org1-peer1:
+export CORE_PEER_LOCALMSPID=Users
 export CORE_PEER_ADDRESS=${ORG1_PEER1_ADDRESS}
 export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_MSPCONFIGPATH=${WORKSHOP_CRYPTO}/enrollments/org1/users/org1admin/msp
@@ -65,12 +62,11 @@ export ORDERER_TLS_CERT=${WORKSHOP_CRYPTO}/channel-msp/ordererOrganizations/org0
 
 Configure the docker engine with the insecure container registry `${WORKSHOP_INGRESS_DOMAIN}:5000`
 
-For example:  (Docker -> Preferences -> Docker Engine)
+For example: (Docker -> Preferences -> Docker Engine)
+
 ```json
 {
-  "insecure-registries": [
-    "192-168-205-6.nip.io:5000"
-  ]
+  "insecure-registries": ["192-168-205-6.nip.io:5000"]
 }
 ```
 
@@ -103,7 +99,6 @@ docker push $CHAINCODE_IMAGE
 
 ```
 
-
 ## 准备 a k8s Chaincode Package
 
 ```shell
@@ -118,13 +113,13 @@ infrastructure/pkgcc.sh -l $CHAINCODE_NAME -n localhost:5000/$CHAINCODE_NAME -d 
 
 ```shell
 
-# Install the chaincode package on both peers in the org 
+# Install the chaincode package on both peers in the org
 CORE_PEER_ADDRESS=${ORG1_PEER1_ADDRESS} peer lifecycle chaincode install $CHAINCODE_PACKAGE
 CORE_PEER_ADDRESS=${ORG1_PEER2_ADDRESS} peer lifecycle chaincode install $CHAINCODE_PACKAGE
 
 export PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid $CHAINCODE_PACKAGE) && echo $PACKAGE_ID
 
-# Approve the contract for org1 
+# Approve the contract for org1
 peer lifecycle \
 	chaincode       approveformyorg \
 	--channelID     ${CHANNEL_NAME} \
@@ -155,7 +150,6 @@ peer chaincode query -n $CHAINCODE_NAME -C mychannel -c '{"Args":["org.hyperledg
 
 ```
 
-
 # 进一步探索
 
 ## 编辑，编译，上传，重新安装合约：
@@ -168,10 +162,9 @@ VERSION=v0.0.$SEQUENCE
 ```
 
 - Make a change to the contracts/asset-transfer-typescript source code
-- build a new chaincode docker image and publish to the local container registry  
+- build a new chaincode docker image and publish to the local container registry
 - prepare a new chaincode package as above.
 - install, approve, and commit as above.
-
 
 ## 基于CI pipeline的结果安装智能合约
 
@@ -184,6 +177,7 @@ CHAINCODE_PACKAGE=asset-transfer-typescript-${VERSION}.tgz
 ```
 
 - Download a chaincode release artifact from GitHub:
+
 ```shell
 
 curl -LO https://github.com/hyperledgendary/full-stack-asset-transfer-guide/releases/download/${VERSION}/${CHAINCODE_PACKAGE}
@@ -192,21 +186,18 @@ curl -LO https://github.com/hyperledgendary/full-stack-asset-transfer-guide/rele
 
 - install, approve, and commit as above.
 
-
 ## 通过智能合约即服务进行调试
 
-- prepare a chaincode package with connection.json -> HOST IP:9999  (todo: link to dig out)
+- prepare a chaincode package with connection.json -> HOST IP:9999 (todo: link to dig out)
 - compute CHAINCODE_ID=shasum CC package.tgz
-- docker run -e CHAINCODE_ID -e CHAINCODE_SERVER_ADDRESS ... $CHAINCODE_IMAGE in a different shell 
+- docker run -e CHAINCODE_ID -e CHAINCODE_SERVER_ADDRESS ... $CHAINCODE_IMAGE in a different shell
 - install, approve, commit as above.
-
 
 ## 通过Ansible进行合约部署
 
-- cp tgz from github releases -> _cfg/
-- edit _cfg/cc yaml with package name
-- `just ... chaincode`  
-
+- cp tgz from github releases -> \_cfg/
+- edit \_cfg/cc yaml with package name
+- `just ... chaincode`
 
 ---
 

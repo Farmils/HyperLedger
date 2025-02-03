@@ -7,9 +7,9 @@
 ordering_org_name: "Ordering Org"
 ordering_service_name: "Ordering Service"
 org1_name: "Org1"
-org1_msp_id: Org1MSP
+org1_msp_id: Users
 org2_name: "Org2"
-org2_msp_id: Org2MSP
+org2_msp_id: Bank
 channel_name: "mychannel"
 # smart_contract_name: "fabcar"
 # smart_contract_version: "1.0.0"

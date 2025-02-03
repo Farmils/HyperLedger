@@ -5,7 +5,14 @@
  */
 
 import * as grpc from '@grpc/grpc-js';
-import { connect, Contract, hash, Identity, Signer, signers } from '@hyperledger/fabric-gateway';
+import {
+    connect,
+    Contract,
+    hash,
+    Identity,
+    Signer,
+    signers,
+} from '@hyperledger/fabric-gateway';
 import * as crypto from 'crypto';
 import { promises as fs } from 'fs';
 import * as path from 'path';
@@ -13,19 +20,58 @@ import { TextDecoder } from 'util';
 
 const channelName = envOrDefault('CHANNEL_NAME', 'mychannel');
 const chaincodeName = envOrDefault('CHAINCODE_NAME', 'basic');
-const mspId = envOrDefault('MSP_ID', 'Org1MSP');
+const mspId = envOrDefault('MSP_ID', 'Users');
 
 // Path to crypto materials.
-const cryptoPath = envOrDefault('CRYPTO_PATH', path.resolve(__dirname, '..', '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com'));
+const cryptoPath = envOrDefault(
+    'CRYPTO_PATH',
+    path.resolve(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        'test-network',
+        'organizations',
+        'peerOrganizations',
+        'org1.example.com',
+    ),
+);
 
 // Path to user private key directory.
-const keyDirectoryPath = envOrDefault('KEY_DIRECTORY_PATH', path.resolve(cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore'));
+const keyDirectoryPath = envOrDefault(
+    'KEY_DIRECTORY_PATH',
+    path.resolve(
+        cryptoPath,
+        'users',
+        'User1@org1.example.com',
+        'msp',
+        'keystore',
+    ),
+);
 
 // Path to user certificate directory.
-const certDirectoryPath = envOrDefault('CERT_DIRECTORY_PATH', path.resolve(cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'signcerts'));
+const certDirectoryPath = envOrDefault(
+    'CERT_DIRECTORY_PATH',
+    path.resolve(
+        cryptoPath,
+        'users',
+        'User1@org1.example.com',
+        'msp',
+        'signcerts',
+    ),
+);
 
 // Path to peer tls certificate.
-const tlsCertPath = envOrDefault('TLS_CERT_PATH', path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt'));
+const tlsCertPath = envOrDefault(
+    'TLS_CERT_PATH',
+    path.resolve(
+        cryptoPath,
+        'peers',
+        'peer0.org1.example.com',
+        'tls',
+        'ca.crt',
+    ),
+);
 
 // Gateway peer endpoint.
 const peerEndpoint = envOrDefault('PEER_ENDPOINT', 'localhost:7051');
@@ -85,7 +131,7 @@ async function main(): Promise<void> {
         await readAssetByID(contract);
 
         // Update an asset which does not exist.
-        await updateNonExistentAsset(contract)
+        await updateNonExistentAsset(contract);
     } finally {
         gateway.close();
         client.close();
@@ -132,7 +178,9 @@ async function newSigner(): Promise<Signer> {
  * initial deployment. A new version of the chaincode deployed later would likely not need to run an "init" function.
  */
 async function initLedger(contract: Contract): Promise<void> {
-    console.log('\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger');
+    console.log(
+        '\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger',
+    );
 
     await contract.submitTransaction('InitLedger');
 
@@ -143,7 +191,9 @@ async function initLedger(contract: Contract): Promise<void> {
  * Evaluate a transaction to query ledger state.
  */
 async function getAllAssets(contract: Contract): Promise<void> {
-    console.log('\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger');
+    console.log(
+        '\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger',
+    );
 
     const resultBytes = await contract.evaluateTransaction('GetAllAssets');
 
@@ -156,7 +206,9 @@ async function getAllAssets(contract: Contract): Promise<void> {
  * Submit a transaction synchronously, blocking until it has been committed to the ledger.
  */
 async function createAsset(contract: Contract): Promise<void> {
-    console.log('\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments');
+    console.log(
+        '\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments',
+    );
 
     await contract.submitTransaction(
         'CreateAsset',
@@ -175,28 +227,39 @@ async function createAsset(contract: Contract): Promise<void> {
  * while waiting for the commit notification.
  */
 async function transferAssetAsync(contract: Contract): Promise<void> {
-    console.log('\n--> Async Submit Transaction: TransferAsset, updates existing asset owner');
+    console.log(
+        '\n--> Async Submit Transaction: TransferAsset, updates existing asset owner',
+    );
 
     const commit = await contract.submitAsync('TransferAsset', {
         arguments: [assetId, 'Saptha'],
     });
     const oldOwner = utf8Decoder.decode(commit.getResult());
 
-    console.log(`*** Successfully submitted transaction to transfer ownership from ${oldOwner} to Saptha`);
+    console.log(
+        `*** Successfully submitted transaction to transfer ownership from ${oldOwner} to Saptha`,
+    );
     console.log('*** Waiting for transaction commit');
 
     const status = await commit.getStatus();
     if (!status.successful) {
-        throw new Error(`Transaction ${status.transactionId} failed to commit with status code ${String(status.code)}`);
+        throw new Error(
+            `Transaction ${status.transactionId} failed to commit with status code ${String(status.code)}`,
+        );
     }
 
     console.log('*** Transaction committed successfully');
 }
 
 async function readAssetByID(contract: Contract): Promise<void> {
-    console.log('\n--> Evaluate Transaction: ReadAsset, function returns asset attributes');
+    console.log(
+        '\n--> Evaluate Transaction: ReadAsset, function returns asset attributes',
+    );
 
-    const resultBytes = await contract.evaluateTransaction('ReadAsset', assetId);
+    const resultBytes = await contract.evaluateTransaction(
+        'ReadAsset',
+        assetId,
+    );
 
     const resultJson = utf8Decoder.decode(resultBytes);
     const result: unknown = JSON.parse(resultJson);
@@ -206,8 +269,10 @@ async function readAssetByID(contract: Contract): Promise<void> {
 /**
  * submitTransaction() will throw an error containing details of any error responses from the smart contract.
  */
-async function updateNonExistentAsset(contract: Contract): Promise<void>{
-    console.log('\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error');
+async function updateNonExistentAsset(contract: Contract): Promise<void> {
+    console.log(
+        '\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error',
+    );
 
     try {
         await contract.submitTransaction(

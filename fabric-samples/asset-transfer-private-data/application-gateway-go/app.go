@@ -25,12 +25,12 @@ type transient = map[string][]byte
 const (
 	channelName   = "mychannel"
 	chaincodeName = "private"
-	mspIDOrg1     = "Org1MSP"
-	mspIDOrg2     = "Org2MSP"
+	mspIDOrg1     = "Users"
+	mspIDOrg2     = "Bank"
 
 	// Collection names.
-	org1PrivateCollectionName = "Org1MSPPrivateCollection"
-	org2PrivateCollectionName = "Org2MSPPrivateCollection"
+	org1PrivateCollectionName = "UsersPrivateCollection"
+	org2PrivateCollectionName = "BankPrivateCollection"
 
 	Red   = "\033[31m"
 	Reset = "\033[0m"

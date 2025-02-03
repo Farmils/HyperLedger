@@ -34,14 +34,16 @@ The smart contract (in folder `chaincode-go`) implements the following functions
 Like other samples, the Fabric test network is used to deploy and run this sample. Follow these steps in order:
 
 1. Create the test network and a channel (from the `test-network` folder).
+
    ```
    ./network.sh up createChannel -c mychannel -ca
    ```
 
 1. Deploy the smart contract implementations.
+
    ```
    # To deploy the go chaincode implementation
-   ./network.sh deployCC -ccn secured -ccp ../asset-transfer-secured-agreement/chaincode-go/ -ccl go -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+   ./network.sh deployCC -ccn secured -ccp ../asset-transfer-secured-agreement/chaincode-go/ -ccl go -ccep "OR('Users.peer','Bank.peer')"
    ```
 
 1. Run the application (from the `asset-transfer-secured-agreement` folder).

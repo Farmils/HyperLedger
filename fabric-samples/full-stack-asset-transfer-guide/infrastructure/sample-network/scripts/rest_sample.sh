@@ -1,5 +1,5 @@
 function launch_rest_sample() {
-export MSP_ID=Org1MSP        
+export MSP_ID=Users        
 export ORG=org1
 export USERNAME=org2user
 export PASSWORD=org1user

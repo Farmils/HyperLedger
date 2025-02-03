@@ -138,7 +138,7 @@ func setupStub() (*MockContext, *MockStub) {
 
 	mci.On("GetID").Return(owner64, nil)
 	mci.On("GetID").Return(operator64, nil)
-	mci.On("GetMSPID").Return("Org1MSP", nil)
+	mci.On("GetMSPID").Return("Users", nil)
 
 	mc := new(MockContext)
 	mc.On("GetStub").Return(ms)

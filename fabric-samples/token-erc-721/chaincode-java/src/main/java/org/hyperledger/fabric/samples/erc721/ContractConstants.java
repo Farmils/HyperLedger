@@ -11,7 +11,7 @@ public enum ContractConstants {
   SYMBOLKEY("symbolKey"),
   APPROVE_FOR_ALL("ApproveForAll"),
   TRANSFER("Transfer"),
-  MINTER_ORG_MSP("Org1MSP");
+  MINTER_ORG_MSP("Users");
   private final String prefix;
 
   ContractConstants(final String value) {

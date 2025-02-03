@@ -5,13 +5,21 @@
  */
 
 import * as grpc from '@grpc/grpc-js';
-import { connect, Gateway, hash, HSMSigner, HSMSignerFactory, HSMSignerOptions, signers } from '@hyperledger/fabric-gateway';
+import {
+    connect,
+    Gateway,
+    hash,
+    HSMSigner,
+    HSMSignerFactory,
+    HSMSignerOptions,
+    signers,
+} from '@hyperledger/fabric-gateway';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { TextDecoder } from 'util';
 
-const mspId = 'Org1MSP';
+const mspId = 'Users';
 const user = 'HSMUser';
 const assetId = `asset${String(Date.now())}`;
 const utf8Decoder = new TextDecoder();
@@ -19,9 +27,31 @@ const utf8Decoder = new TextDecoder();
 // Sample uses fabric-ca-client generated HSM identities, certificate is located in the signcerts directory
 // and has been stored in a directory of the name given to the identity.
 
-const certPath = path.resolve(__dirname, '..', '..', 'crypto-material', 'hsm', user, 'signcerts', 'cert.pem');
+const certPath = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'crypto-material',
+    'hsm',
+    user,
+    'signcerts',
+    'cert.pem',
+);
 
-const tlsCertPath = path.resolve(__dirname, '..', '..', '..', 'test-network','organizations','peerOrganizations', 'org1.example.com', 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt');
+const tlsCertPath = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'test-network',
+    'organizations',
+    'peerOrganizations',
+    'org1.example.com',
+    'peers',
+    'peer0.org1.example.com',
+    'tls',
+    'ca.crt',
+);
 const peerEndpoint = 'localhost:7051';
 
 async function main() {
@@ -32,7 +62,7 @@ async function main() {
     let hsmSigner;
 
     try {
-    // The gRPC client connection should be shared by all Gateway connections to this endpoint
+        // The gRPC client connection should be shared by all Gateway connections to this endpoint
         client = await newGrpcConnection();
 
         // get an HSMSigner Factory. You only need to do this once for the application
@@ -45,7 +75,7 @@ async function main() {
         gateway = connect({
             client,
             identity: { mspId, credentials },
-            signer:hsmSigner.signer,
+            signer: hsmSigner.signer,
             hash: hash.sha256,
         });
 
@@ -60,15 +90,16 @@ async function main() {
     }
 }
 
-async function exampleTransaction(gateway: Gateway):Promise<void> {
-
+async function exampleTransaction(gateway: Gateway): Promise<void> {
     const channelName = envOrDefault('CHANNEL_NAME', 'mychannel');
     const chaincodeName = envOrDefault('CHAINCODE_NAME', 'basic');
 
     const network = gateway.getNetwork(channelName);
     const contract = network.getContract(chaincodeName);
 
-    console.log('\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments');
+    console.log(
+        '\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments',
+    );
 
     await contract.submitTransaction(
         'CreateAsset',
@@ -81,9 +112,14 @@ async function exampleTransaction(gateway: Gateway):Promise<void> {
 
     console.log('*** Transaction committed successfully');
 
-    console.log('\n--> Evaluate Transaction: ReadAsset, function returns asset attributes');
+    console.log(
+        '\n--> Evaluate Transaction: ReadAsset, function returns asset attributes',
+    );
 
-    const resultBytes = await contract.evaluateTransaction('ReadAsset', assetId);
+    const resultBytes = await contract.evaluateTransaction(
+        'ReadAsset',
+        assetId,
+    );
 
     const resultJson = utf8Decoder.decode(resultBytes);
     const result: unknown = JSON.parse(resultJson);
@@ -95,12 +131,15 @@ async function newGrpcConnection(): Promise<grpc.Client> {
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
 
     return new grpc.Client(peerEndpoint, tlsCredentials, {
-        'grpc.ssl_target_name_override': 'peer0.org1.example.com'
+        'grpc.ssl_target_name_override': 'peer0.org1.example.com',
     });
 }
 
 // Create a new HSM Signer
-function newHSMSigner(hsmSignerFactory: HSMSignerFactory, certificatePEM: Buffer): HSMSigner {
+function newHSMSigner(
+    hsmSignerFactory: HSMSignerFactory,
+    certificatePEM: Buffer,
+): HSMSigner {
     const certificate = new crypto.X509Certificate(certificatePEM);
     const ski = getSKIFromCertificate(certificate);
 
@@ -109,8 +148,8 @@ function newHSMSigner(hsmSignerFactory: HSMSignerFactory, certificatePEM: Buffer
     const hsmSignerOptions: HSMSignerOptions = {
         label: 'ForFabric',
         pin: '98765432',
-        identifier: ski
-    }
+        identifier: ski,
+    };
     return hsmSignerFactory.newSigner(hsmSignerOptions);
 }
 
@@ -122,7 +161,7 @@ function findSoftHSMPKCS11Lib(): string {
         '/usr/lib/x86_64-linux-gnu/softhsm/libsofthsm2.so',
         '/usr/local/lib/softhsm/libsofthsm2.so',
         '/usr/lib/libacsp-pkcs11.so',
-        '/opt/homebrew/lib/softhsm/libsofthsm2.so'
+        '/opt/homebrew/lib/softhsm/libsofthsm2.so',
     ];
     const pkcs11lib = process.env['PKCS11_LIB'];
     if (pkcs11lib) {
@@ -130,18 +169,20 @@ function findSoftHSMPKCS11Lib(): string {
     }
     for (const pathnameToTry of commonSoftHSMPathNames) {
         if (fs.existsSync(pathnameToTry)) {
-            return pathnameToTry
+            return pathnameToTry;
         }
     }
 
-    throw new Error('Unable to find PKCS11 library')
+    throw new Error('Unable to find PKCS11 library');
 }
 
 // fabric-ca-client set's the CKA_ID of the public/private keys in the HSM to a generated SKI
 // value. This function replicates that calculation from a certificate PEM so that the HSM
 // object associated with the certificate can be found
 function getSKIFromCertificate(certificate: crypto.X509Certificate): Buffer {
-    const uncompressedPoint = getUncompressedPointOnCurve(certificate.publicKey);
+    const uncompressedPoint = getUncompressedPointOnCurve(
+        certificate.publicKey,
+    );
     return crypto.createHash('sha256').update(uncompressedPoint).digest();
 }
 

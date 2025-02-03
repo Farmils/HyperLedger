@@ -3,12 +3,12 @@
 [前一步: 安装智能合约](30-chaincode-zh.md) <==> [下一步: 关闭环境](90-teardown.md)
 
 ---
+
 这是本次workshop的最后一个练习，我们将会使用Gateway Client来将我们开发的应用[应用](../ApplicationDev)部署在云原生的Fabric网络上。
 
 为了查询账本和提交交易到`asset-transfer`智能合约，客户端应用必须通过制定CA签发的数字身份来启动。一旦用户身份被注册，我们将会用身份来创建，交易虚拟“token”资产。
 
 ![Gateway Client Application](../../docs/images/CloudReady/40-gateway-client-app.png)
-
 
 ## 执行
 
@@ -18,13 +18,12 @@ just check-chaincode
 
 ```
 
-
 ## 注册新用户
 
 ```shell
 
 # User organization MSP ID
-export MSP_ID=Org1MSP        
+export MSP_ID=Users
 export ORG=org1
 export USERNAME=org1user
 export PASSWORD=org1userpw
@@ -57,6 +56,7 @@ mv $USER_MSP_DIR/keystore/*_sk $USER_MSP_DIR/keystore/key.pem
 ## 启动应用
 
 - Set the gateway client to connect to the org1-peer1 as the newly enrolled `${USERNAME}`:
+
 ```shell
 
 # Path to private key file
@@ -86,21 +86,21 @@ npm install
 
 ```shell
 
-# Create a yellow banana token owned by appleman@org1 
+# Create a yellow banana token owned by appleman@org1
 npm start create banana bananaman yellow
 
 npm start getAllAssets
 
-# Transfer the banana among users / orgs 
-npm start transfer banana appleman Org1MSP
+# Transfer the banana among users / orgs
+npm start transfer banana appleman Users
 
 npm start getAllAssets
 
-# Transfer the banana among users / orgs 
-npm start transfer banana bananaman Org2MSP
+# Transfer the banana among users / orgs
+npm start transfer banana bananaman Bank
 
-# Error! Which org owns the banana? 
-npm start transfer banana bananaman Org1MSP
+# Error! Which org owns the banana?
+npm start transfer banana bananaman Users
 
 popd
 
@@ -116,20 +116,21 @@ popd
 
 相关设置 [Service and Ingress](../../infrastructure/sample-network/config/gateway/org1-peer-gateway.yaml):
 
+- Create a virtual host name / Ingress endpoint for the org peers:
 
-- Create a virtual host name / Ingress endpoint for the org peers: 
 ```shell
 pushd applications/trader-typescript
 
 kubectl kustomize \
   ../../infrastructure/sample-network/config/gateway \
   | envsubst \
-  | kubectl -n ${WORKSHOP_NAMESPACE} apply -f -  
+  | kubectl -n ${WORKSHOP_NAMESPACE} apply -f -
 
 ```
 
-- Run the gateway client application, using the load-balanced Gateway service.  When the gateway client 
-connects to the network, the gRPCs connections will be distributed across peers in the org:
+- Run the gateway client application, using the load-balanced Gateway service. When the gateway client
+  connects to the network, the gRPCs connections will be distributed across peers in the org:
+
 ```shell
 
 unset HOST_ALIAS
@@ -140,10 +141,9 @@ npm start getAllAssets
 popd
 ```
 
-Note that in order to support ingress and host access with the new virtual domain, the peer 
+Note that in order to support ingress and host access with the new virtual domain, the peer
 CRDs have been instructed to [designate an additional SAN alias](../../infrastructure/sample-network/config/peers/org1-peer1.yaml#L69)
 / host name when provisioning the node TLS certificate with the CA.
-
 
 ---
 

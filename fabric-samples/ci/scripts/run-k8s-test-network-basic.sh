@@ -12,6 +12,12 @@ export CLIENT_LANGUAGE=${CLIENT_LANGUAGE:-typescript}
 export CHAINCODE_LANGUAGE=${CHAINCODE_LANGUAGE:-java}
 export TEST_NETWORK_CHAINCODE_BUILDER=${CHAINCODE_BUILDER:-ccaas}
 
+# Fabric version
+export TEST_NETWORK_FABRIC_VERSION=${FABRIC_VERSION:-}
+
+# Orderer parameters
+export TEST_NETWORK_ORDERER_TYPE=${ORDERER_TYPE:-raft}
+
 # test-network-k8s parameters
 export TEST_TAG=$(git describe)
 export TEST_NETWORK_KIND_CLUSTER_NAME=${TEST_NETWORK_KIND_CLUSTER_NAME:-kind}
@@ -25,7 +31,7 @@ export TEST_NETWORK_CHAINCODE_IMAGE=${TEST_NETWORK_CHAINCODE_IMAGE:-fabric-sampl
 export GATEWAY_CLIENT_APPLICATION_PATH=${GATEWAY_CLIENT_APPLICATION_PATH:-../asset-transfer-basic/application-gateway-${CLIENT_LANGUAGE}}
 export CHANNEL_NAME=${TEST_NETWORK_CHANNEL_NAME:-mychannel}
 export CHAINCODE_NAME=${TEST_NETWORK_CHAINCODE_NAME:-asset-transfer-basic}
-export MSP_ID=${MSP_ID:-Org1MSP}
+export MSP_ID=${MSP_ID:-Users}
 export CRYPTO_PATH=${CRYPTO_PATH:-../../test-network-k8s/build/channel-msp/peerOrganizations/org1}
 export KEY_DIRECTORY_PATH=${KEY_DIRECTORY_PATH:-../../test-network-k8s/build/enrollments/org1/users/org1admin/msp/keystore}
 export CERT_DIRECTORY_PATH=${CERT_DIRECTORY_PATH:-../../test-network-k8s/build/enrollments/org1/users/org1admin/msp/signcerts}
@@ -79,6 +85,7 @@ trap "quitterLaScene" EXIT
 
 createNetwork
 
+sleep 5
 print "Inserting and querying assets"
 ( ./network chaincode metadata $CHAINCODE_NAME \
   && ./network chaincode invoke $CHAINCODE_NAME '{"Args":["InitLedger"]}' \

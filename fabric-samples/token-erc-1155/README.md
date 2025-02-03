@@ -5,13 +5,15 @@ This is a sample ERC-1155 chaincode written in Go.
 ERC-20 is the standard for fungible tokens. ERC-721 is the standard for non-fungible tokens. ERC-1155 is the standard for multiple tokens (both fungible and non-fungible). [More information about the ERC-1155 standard can be found here.](https://eips.ethereum.org/EIPS/eip-1155)
 
 ## Architecture
+
 This implementation aims for high throughput by minimizing key collisions. The balance of accounts is distributed over multiple keys. The token transfers can be batched using the batched versions of functions (e.g. BatchTransferFrom, BalanceOfBatch). Since ERC-1155 is account-based, the interface of the chaincode is account-based. However, since the balances are distributed over multiple keys, the chaincode has a model similar to a UTXO-based chaincode internally.
 
 In this chaincode, one organization has a minter/burner role just like in the [ERC-20 example in this repository](https://github.com/hyperledger/fabric-samples/tree/main/token-erc-20).
 
-
 ## Functions Implemented
+
 The following required functions of ERC-1155 are implemented:
+
 - safeTransferFrom
 - safeBatchTransferFrom
 - balanceOf
@@ -26,12 +28,13 @@ Note: TransferFrom is used to send a single token type between two users. BatchT
 ## Additional Functions Implemented
 
 The following additional functions are also implemented. The following paragraphs give the reasoning behind adding these functions:
-- Optional Metadata URI extension: 
-Defined in ERC-1155 but not required. Allows one to set a URI for tokens and get the URI.
+
+- Optional Metadata URI extension:
+  Defined in ERC-1155 but not required. Allows one to set a URI for tokens and get the URI.
   - SetURI
   - URI
-- Mint/Burn extension: 
-Although Mint / Burn are not required, they are necessary to change the supply of tokens, create new fungible or non-fungible tokens. In a real implementation, they will be implemented unless the supply of the tokens is fixed beforehand. MintBatch / BurnBatch is only implemented to complement the TransferFrom/BatchTransferFrom. Actually, using only MintBatch and BurnBatch would be enough.
+- Mint/Burn extension:
+  Although Mint / Burn are not required, they are necessary to change the supply of tokens, create new fungible or non-fungible tokens. In a real implementation, they will be implemented unless the supply of the tokens is fixed beforehand. MintBatch / BurnBatch is only implemented to complement the TransferFrom/BatchTransferFrom. Actually, using only MintBatch and BurnBatch would be enough.
   - Mint
   - MintBatch
   - Burn
@@ -44,7 +47,7 @@ Although Mint / Burn are not required, they are necessary to change the supply o
 
 ## Example Usage
 
-### Launch test network 
+### Launch test network
 
 Open a command terminal and navigate to the test network directory.
 
@@ -53,11 +56,13 @@ cd fabric-samples/test-network
 ```
 
 Clean up the existing network if you have any.
+
 ```bash
 ./network.sh down
 ```
 
 Start test network
+
 ```bash
 ./network.sh up createChannel -ca
 ```
@@ -88,6 +93,7 @@ export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example
 ```
 
 Register `Person1` identity to Org1.
+
 ```bash
 fabric-ca-client register --caname ca-org1 --id.name person1 --id.secret person1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
 ```
@@ -134,13 +140,15 @@ cp "${PWD}/organizations/peerOrganizations/org2.example.com/msp/config.yaml" "${
 ```
 
 ## Initialize the contract
+
 Once we created the identity of the minter we can now initialize the contract.
 Note that we need to call the initialize function before being able to use any functions of the contract. Initialize() can be called only once.
 
 Shift back to the Org1 terminal, we'll set the following environment variables to operate the `peer` CLI as the minter identity from Org1.
-```bash
+
+````bash
 export CORE_PEER_TLS_ENABLED=true
-export CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_LOCALMSPID=Users
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/person1@org1.example.com/msp
 export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
 export CORE_PEER_ADDRESS=localhost:7051
@@ -149,11 +157,12 @@ export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride ordere
 We can then invoke the smart contract to initialize it:
 ```bash
 peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C mychannel -n erc1155 -c '{"function":"Initialize","Args":["some name", "some symbol"]}'
-```
+````
 
 ### Get account ID
 
 Now, get client account ID for Person1.
+
 ```bash
 peer chaincode query -C mychannel -n erc1155 -c '{"function":"ClientAccountID","Args":[]}'
 ```
@@ -174,6 +183,7 @@ x509::CN=person1,OU=client,O=Hyperledger,ST=North Carolina,C=US::CN=ca.org1.exam
 ```
 
 Set the client account IDs as environment variables on both of the terminals to make the subsequent commands more readable.
+
 ```bash
 export P1="eDUwOTo6Q049cGVyc29uMSxPVT1jbGllbnQsTz1IeXBlcmxlZGdlcixTVD1Ob3J0aCBDYXJvbGluYSxDPVVTOjpDTj1jYS5vcmcxLmV4YW1wbGUuY29tLE89b3JnMS5leGFtcGxlLmNvbSxMPUR1cmhhbSxTVD1Ob3J0aCBDYXJvbGluYSxDPVVT"
 export P2="eDUwOTo6Q049cGVyc29uMixPVT1jbGllbnQsTz1IeXBlcmxlZGdlcixTVD1Ob3J0aCBDYXJvbGluYSxDPVVTOjpDTj1jYS5vcmcyLmV4YW1wbGUuY29tLE89b3JnMi5leGFtcGxlLmNvbSxMPUh1cnNsZXksU1Q9SGFtcHNoaXJlLEM9VUs="
@@ -190,7 +200,7 @@ Mint tokens by calling the MintBatch function in order to create 100 token1s, 20
 peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C mychannel -n erc1155 -c "{\"function\":\"MintBatch\",\"Args\":[\"$P1\",\"[1,2,3,4,5,6]\",\"[100,200,300,150,100,100]\"]}" --waitForEvent
 ```
 
-Query the tokens of Person1.  
+Query the tokens of Person1.
 
 ```bash
 peer chaincode query -C mychannel -n erc1155 -c "{\"function\":\"BalanceOfBatch\",\"Args\":[\"[\\\"$P1\\\",\\\"$P1\\\",\\\"$P1\\\",\\\"$P1\\\",\\\"$P1\\\",\\\"$P1\\\"]\",\"[1,2,3,4,5,6]\"]}"
@@ -200,18 +210,20 @@ peer chaincode query -C mychannel -n erc1155 -c "{\"function\":\"BalanceOfBatch\
 [100,200,300,150,100,100]
 ```
 
-Side note: There may seem too many slashes in the previous command. It double escapes the quotes. One escape is to be able to use quotes in the `-c` argument of the command. The second escape is necessary to pass the account IDs as an array. Quote is needed since the elements of the array are strings. 
+Side note: There may seem too many slashes in the previous command. It double escapes the quotes. One escape is to be able to use quotes in the `-c` argument of the command. The second escape is necessary to pass the account IDs as an array. Quote is needed since the elements of the array are strings.
 
 ### Transfer tokens
 
 #### TransferFrom
 
 Send Person P2 six token3s by calling TransferFrom as Person P1.
+
 ```bash
 peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C mychannel -n erc1155 -c "{\"function\":\"TransferFrom\",\"Args\":[\"$P1\",\"$P2\",\"3\",\"6\"]}" --waitForEvent
 ```
 
 Get the new Balance of Person1 for token3.
+
 ```bash
 peer chaincode query -C mychannel -n erc1155 -c "{\"function\":\"BalanceOf\",\"Args\":[\"$P1\",\"3\"]}"
 ```
@@ -221,10 +233,11 @@ peer chaincode query -C mychannel -n erc1155 -c "{\"function\":\"BalanceOf\",\"A
 ```
 
 Switch to the Org2 terminal and set the following environment variables.
+
 ```bash
 export FABRIC_CFG_PATH=$PWD/../config/
 export CORE_PEER_TLS_ENABLED=true
-export CORE_PEER_LOCALMSPID=Org2MSP
+export CORE_PEER_LOCALMSPID=Bank
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/person2@org2.example.com/msp
 export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
 export CORE_PEER_ADDRESS=localhost:9051
@@ -232,6 +245,7 @@ export TARGET_TLS_OPTIONS=(-o localhost:7050 --ordererTLSHostnameOverride ordere
 ```
 
 Get the new balance of Person2 for token3.
+
 ```bash
 peer chaincode query -C mychannel -n erc1155 -c "{\"function\":\"BalanceOf\",\"Args\":[\"$P2\",\"3\"]}"
 ```
@@ -253,8 +267,9 @@ peer chaincode invoke "${TARGET_TLS_OPTIONS[@]}" -C mychannel -n erc1155 -c "{\"
 #### BatchTransferFromMultiReceipent
 
 Call BatchTransferFromMultiReceipent as Person1 in order to send:
+
 - six token5s to person P3,
-- six token3s  to person P4,
+- six token3s to person P4,
 - three token4s to person P2,
 - two token2s to person P5,
 - and three token6s to person P2.

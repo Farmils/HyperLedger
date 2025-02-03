@@ -13,7 +13,7 @@ const { TextDecoder } = require('node:util');
 
 const channelName = envOrDefault('CHANNEL_NAME', 'mychannel');
 const chaincodeName = envOrDefault('CHAINCODE_NAME', 'basic');
-const mspId = envOrDefault('MSP_ID', 'Org1MSP');
+const mspId = envOrDefault('MSP_ID', 'Users');
 
 // Path to crypto materials.
 const cryptoPath = envOrDefault(
@@ -26,8 +26,8 @@ const cryptoPath = envOrDefault(
         'test-network',
         'organizations',
         'peerOrganizations',
-        'org1.example.com'
-    )
+        'org1.example.com',
+    ),
 );
 
 // Path to user private key directory.
@@ -38,8 +38,8 @@ const keyDirectoryPath = envOrDefault(
         'users',
         'User1@org1.example.com',
         'msp',
-        'keystore'
-    )
+        'keystore',
+    ),
 );
 
 // Path to user certificate directory.
@@ -50,14 +50,20 @@ const certDirectoryPath = envOrDefault(
         'users',
         'User1@org1.example.com',
         'msp',
-        'signcerts'
-    )
+        'signcerts',
+    ),
 );
 
 // Path to peer tls certificate.
 const tlsCertPath = envOrDefault(
     'TLS_CERT_PATH',
-    path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt')
+    path.resolve(
+        cryptoPath,
+        'peers',
+        'peer0.org1.example.com',
+        'tls',
+        'ca.crt',
+    ),
 );
 
 // Gateway peer endpoint.
@@ -166,7 +172,7 @@ async function newSigner() {
  */
 async function initLedger(contract) {
     console.log(
-        '\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger'
+        '\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger',
     );
 
     await contract.submitTransaction('InitLedger');
@@ -179,7 +185,7 @@ async function initLedger(contract) {
  */
 async function getAllAssets(contract) {
     console.log(
-        '\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger'
+        '\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger',
     );
 
     const resultBytes = await contract.evaluateTransaction('GetAllAssets');
@@ -194,7 +200,7 @@ async function getAllAssets(contract) {
  */
 async function createAsset(contract) {
     console.log(
-        '\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments'
+        '\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments',
     );
 
     await contract.submitTransaction(
@@ -203,7 +209,7 @@ async function createAsset(contract) {
         'yellow',
         '5',
         'Tom',
-        '1300'
+        '1300',
     );
 
     console.log('*** Transaction committed successfully');
@@ -215,7 +221,7 @@ async function createAsset(contract) {
  */
 async function transferAssetAsync(contract) {
     console.log(
-        '\n--> Async Submit Transaction: TransferAsset, updates existing asset owner'
+        '\n--> Async Submit Transaction: TransferAsset, updates existing asset owner',
     );
 
     const commit = await contract.submitAsync('TransferAsset', {
@@ -224,7 +230,7 @@ async function transferAssetAsync(contract) {
     const oldOwner = utf8Decoder.decode(commit.getResult());
 
     console.log(
-        `*** Successfully submitted transaction to transfer ownership from ${oldOwner} to Saptha`
+        `*** Successfully submitted transaction to transfer ownership from ${oldOwner} to Saptha`,
     );
     console.log('*** Waiting for transaction commit');
 
@@ -233,7 +239,7 @@ async function transferAssetAsync(contract) {
         throw new Error(
             `Transaction ${
                 status.transactionId
-            } failed to commit with status code ${String(status.code)}`
+            } failed to commit with status code ${String(status.code)}`,
         );
     }
 
@@ -242,12 +248,12 @@ async function transferAssetAsync(contract) {
 
 async function readAssetByID(contract) {
     console.log(
-        '\n--> Evaluate Transaction: ReadAsset, function returns asset attributes'
+        '\n--> Evaluate Transaction: ReadAsset, function returns asset attributes',
     );
 
     const resultBytes = await contract.evaluateTransaction(
         'ReadAsset',
-        assetId
+        assetId,
     );
 
     const resultJson = utf8Decoder.decode(resultBytes);
@@ -260,7 +266,7 @@ async function readAssetByID(contract) {
  */
 async function updateNonExistentAsset(contract) {
     console.log(
-        '\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error'
+        '\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error',
     );
 
     try {
@@ -270,7 +276,7 @@ async function updateNonExistentAsset(contract) {
             'blue',
             '5',
             'Tomoko',
-            '300'
+            '300',
         );
         console.log('******** FAILED to return an error');
     } catch (error) {

@@ -10,7 +10,7 @@ func main() {
 	cryptoPath := "../../test-network/organizations/peerOrganizations/org1.example.com"
 	orgConfig := web.OrgSetup{
 		OrgName:      "Org1",
-		MSPID:        "Org1MSP",
+		MSPID:        "Users",
 		CertPath:     cryptoPath + "/users/User1@org1.example.com/msp/signcerts/cert.pem",
 		KeyPath:      cryptoPath + "/users/User1@org1.example.com/msp/keystore/",
 		TLSCertPath:  cryptoPath + "/peers/peer0.org1.example.com/tls/ca.crt",

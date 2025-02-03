@@ -34,7 +34,7 @@ public final class Connections {
     private static final String peerEndpoint = "localhost:7051";
     private static final String overrideAuth = "peer0.org1.example.com";
 
-    private static final String mspID = "Org1MSP";
+    private static final String mspID = "Users";
 
     private Connections() {
         // Private constructor to prevent instantiation

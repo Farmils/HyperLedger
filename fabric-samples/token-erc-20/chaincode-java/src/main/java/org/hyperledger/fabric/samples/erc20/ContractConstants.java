@@ -13,7 +13,7 @@ public enum ContractConstants {
   DECIMALS_KEY("decimals"),
   TOTAL_SUPPLY_KEY("totalSupply"),
   TRANSFER_EVENT("Transfer"),
-  MINTER_ORG_MSPID("Org1MSP"),
+  MINTER_ORG_MSPID("Users"),
   APPROVAL("Approval");
 
   private final String prefix;

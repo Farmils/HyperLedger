@@ -1,12 +1,19 @@
 import * as grpc from '@grpc/grpc-js';
-import { connect, Contract, hash, Identity, Signer, signers } from '@hyperledger/fabric-gateway';
+import {
+    connect,
+    Contract,
+    hash,
+    Identity,
+    Signer,
+    signers,
+} from '@hyperledger/fabric-gateway';
 import * as crypto from 'crypto';
 import * as path from 'path';
 
 import { promises as fs } from 'fs';
 const channelName = envOrDefault('CHANNEL_NAME', 'mychannel');
 const chaincodeName = envOrDefault('CHAINCODE_NAME', 'asset-transfer');
-const mspId = envOrDefault('MSP_ID', 'Org1MSP');
+const mspId = envOrDefault('MSP_ID', 'Users');
 //Local development and testing uncomment below code
 // const WORKSHOP_CRYPTO =envOrDefault('CRYPTO_PATH', path.resolve(__dirname, '..','..', '..', 'infrastructure', 'sample-network', 'temp'));
 // const keyPath = WORKSHOP_CRYPTO + "/enrollments/org1/users/org1user/msp/keystore/key.pem";
@@ -14,15 +21,15 @@ const mspId = envOrDefault('MSP_ID', 'Org1MSP');
 // const tlsCertPath = WORKSHOP_CRYPTO + "/channel-msp/peerOrganizations/org1/msp/tlscacerts/tlsca-signcert.pem";
 
 // //kubenetes certificates file path
-const WORKSHOP_CRYPTO = "/etc/secret-volume/"
-const keyPath = WORKSHOP_CRYPTO + "keyPath";
-const certPath = WORKSHOP_CRYPTO + "certPath"
-const tlsCertPath = WORKSHOP_CRYPTO + "tlsCertPath";
-console.log("keyPath " + keyPath);
-console.log("certPath " + certPath);
-console.log("tlsCertPath " + tlsCertPath);
-const peerEndpoint = "test-network-org1-peer1-peer.localho.st:443";
-const peerHostAlias = "test-network-org1-peer1-peer.localho.st";
+const WORKSHOP_CRYPTO = '/etc/secret-volume/';
+const keyPath = WORKSHOP_CRYPTO + 'keyPath';
+const certPath = WORKSHOP_CRYPTO + 'certPath';
+const tlsCertPath = WORKSHOP_CRYPTO + 'tlsCertPath';
+console.log('keyPath ' + keyPath);
+console.log('certPath ' + certPath);
+console.log('tlsCertPath ' + tlsCertPath);
+const peerEndpoint = 'test-network-org1-peer1-peer.localho.st:443';
+const peerHostAlias = 'test-network-org1-peer1-peer.localho.st';
 export class Connection {
     public static contract: Contract;
     public init() {
@@ -63,8 +70,6 @@ async function initFabric(): Promise<void> {
 
         // Initialize a set of asset data on the ledger using the chaincode 'InitLedger' function.
         //        await initLedger(contract);
-
-
     } catch (e: any) {
         console.log('sample log');
         console.log(e.message);

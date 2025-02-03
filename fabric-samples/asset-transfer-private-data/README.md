@@ -42,23 +42,26 @@ getQueryResultForQueryString
 Like other samples, the Fabric test network is used to deploy and run this sample. Follow these steps in order:
 
 1. Create the test network and a channel (from the `test-network` folder).
+
    ```
    ./network.sh up createChannel -c mychannel -ca
    ```
 
 2. Deploy one of the smart contract implementations (from the `test-network` folder).
+
    ```
    # To deploy the Java chaincode implementation
-   ./network.sh deployCC -ccn private -ccp ../asset-transfer-private-data/chaincode-java  -ccl java -ccep "OR('Org1MSP.peer','Org2MSP.peer')"  -cccg '../asset-transfer-private-data/chaincode-java/collections_config.json' -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+   ./network.sh deployCC -ccn private -ccp ../asset-transfer-private-data/chaincode-java  -ccl java -ccep "OR('Users.peer','Bank.peer')"  -cccg '../asset-transfer-private-data/chaincode-java/collections_config.json' -ccep "OR('Users.peer','Bank.peer')"
 
    # To deploy the go chaincode implementation
-   ./network.sh deployCC -ccn private -ccp ../asset-transfer-private-data/chaincode-go  -ccl go -ccep "OR('Org1MSP.peer','Org2MSP.peer')"  -cccg '../asset-transfer-private-data/chaincode-go/collections_config.json' -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+   ./network.sh deployCC -ccn private -ccp ../asset-transfer-private-data/chaincode-go  -ccl go -ccep "OR('Users.peer','Bank.peer')"  -cccg '../asset-transfer-private-data/chaincode-go/collections_config.json' -ccep "OR('Users.peer','Bank.peer')"
 
    # To deploy the typescript chaincode implementation
-   ./network.sh deployCC -ccn private -ccp ../asset-transfer-private-data/chaincode-typescript/ -ccl typescript  -ccep "OR('Org1MSP.peer','Org2MSP.peer')" -cccg ../asset-transfer-private-data/chaincode-typescript/collections_config.json
+   ./network.sh deployCC -ccn private -ccp ../asset-transfer-private-data/chaincode-typescript/ -ccl typescript  -ccep "OR('Users.peer','Bank.peer')" -cccg ../asset-transfer-private-data/chaincode-typescript/collections_config.json
    ```
 
 3. Run the application (from the `asset-transfer-private-data` folder).
+
    ```
    # To run the Typescript sample application
    cd application-gateway-typescript

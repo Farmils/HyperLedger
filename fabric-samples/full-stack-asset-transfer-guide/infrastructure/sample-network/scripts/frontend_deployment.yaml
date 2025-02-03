@@ -32,7 +32,6 @@ spec:
       port: 80
       targetPort: 80
 
-
   # kubectl create secret generic client-secret --from-file=keyPath=/home/ramdisk/my-full-stack/infrastructure/sample-network/temp/enrollments/org1/users/org1user/msp/keystore/key.pem --from-file=certPath=/home/ramdisk/my-full-stack/infrastructure/sample-network/temp/enrollments/org1/users/org1user/msp/signcerts/cert.pem --from-file=tlsCertPath=/home/ramdisk/my-full-stack/infrastructure/sample-network/temp/channel-msp/peerOrganizations/org1/msp/tlscacerts/tlsca-signcert.pem -n test-network
 ---
 apiVersion: networking.k8s.io/v1
@@ -48,7 +47,7 @@ metadata:
   #   app.kubernetes.io/managed-by: fabric-operator
   #   app.kubernetes.io/name: fabric
   #   creator: fabric
-  #   orgname: Org1MSP
+  #   orgname: Users
 spec:
   ingressClassName: nginx
   rules:

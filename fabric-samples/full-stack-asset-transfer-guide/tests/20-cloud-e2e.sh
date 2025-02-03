@@ -170,7 +170,7 @@ just check-network
 export ORG1_PEER1_ADDRESS=${WORKSHOP_NAMESPACE}-org1-peer1-peer.${WORKSHOP_INGRESS_DOMAIN}:443
 export ORG1_PEER2_ADDRESS=${WORKSHOP_NAMESPACE}-org1-peer2-peer.${WORKSHOP_INGRESS_DOMAIN}:443
 
-export CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_LOCALMSPID=Users
 export CORE_PEER_ADDRESS=${ORG1_PEER1_ADDRESS}
 export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_MSPCONFIGPATH=${WORKSHOP_CRYPTO}/enrollments/org1/users/org1admin/msp
@@ -318,7 +318,7 @@ echo "todo: 33 : crazy time, run CCaaS on localhost, invoked by peer in k8s"
 [[ ${WORKSHOP_NAMESPACE+x}      ]] || exit 1
 
 # User organization MSP ID
-export MSP_ID=Org1MSP
+export MSP_ID=Users
 export ORG=org1
 export USERNAME=org1user
 export PASSWORD=org1userpw

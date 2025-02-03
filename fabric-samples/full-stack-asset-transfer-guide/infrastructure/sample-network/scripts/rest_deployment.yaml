@@ -53,7 +53,7 @@ metadata:
   #   app.kubernetes.io/managed-by: fabric-operator
   #   app.kubernetes.io/name: fabric
   #   creator: fabric
-  #   orgname: Org1MSP
+  #   orgname: Users
 spec:
   ingressClassName: nginx
   rules:

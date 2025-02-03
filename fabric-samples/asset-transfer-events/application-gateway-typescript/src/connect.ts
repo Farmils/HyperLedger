@@ -5,24 +5,51 @@
  */
 
 import * as grpc from '@grpc/grpc-js';
-import {  Identity,  Signer, signers } from '@hyperledger/fabric-gateway';
+import { Identity, Signer, signers } from '@hyperledger/fabric-gateway';
 import * as crypto from 'crypto';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
-const mspId = 'Org1MSP';
+const mspId = 'Users';
 
 // Path to crypto materials.
-const cryptoPath = path.resolve(__dirname, '..', '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com');
+const cryptoPath = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'test-network',
+    'organizations',
+    'peerOrganizations',
+    'org1.example.com',
+);
 
 // Path to user private key directory.
-const keyDirectoryPath = path.resolve(cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore');
+const keyDirectoryPath = path.resolve(
+    cryptoPath,
+    'users',
+    'User1@org1.example.com',
+    'msp',
+    'keystore',
+);
 
 // Path to user certificate.
-const certDirectoryPath = path.resolve(cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'signcerts');
+const certDirectoryPath = path.resolve(
+    cryptoPath,
+    'users',
+    'User1@org1.example.com',
+    'msp',
+    'signcerts',
+);
 
 // Path to peer tls certificate.
-const tlsCertPath = path.resolve(cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt');
+const tlsCertPath = path.resolve(
+    cryptoPath,
+    'peers',
+    'peer0.org1.example.com',
+    'tls',
+    'ca.crt',
+);
 
 // Gateway peer endpoint.
 const peerEndpoint = 'localhost:7051';

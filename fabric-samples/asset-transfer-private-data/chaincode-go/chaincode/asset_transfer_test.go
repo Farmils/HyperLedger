@@ -49,10 +49,10 @@ type clientIdentity interface {
 
 const assetCollectionName = "assetCollection"
 const transferAgreementObjectType = "transferAgreement"
-const myOrg1Msp = "Org1Testmsp"
+const myUsers = "Org1Testmsp"
 const myOrg1Clientid = "myOrg1Userid"
 const myOrg1PrivCollection = "Org1TestmspPrivateCollection"
-const myOrg2Msp = "Org2Testmsp"
+const myBank = "Org2Testmsp"
 const myOrg2Clientid = "myOrg2Userid"
 const myOrg2PrivCollection = "Org2TestmspPrivateCollection"
 
@@ -230,7 +230,7 @@ func TestTransferAssetBadInput(t *testing.T) {
 
 	assetNewOwner = &assetTransferTransientInput{
 		ID:       "id1",
-		BuyerMSP: myOrg2Msp,
+		BuyerMSP: myBank,
 	}
 	setReturnAssetOwnerInTransientMap(t, chaincodeStub, assetNewOwner)
 	// asset does not exist
@@ -244,7 +244,7 @@ func TestTransferAssetSuccessful(t *testing.T) {
 	assetTransferCC := chaincode.SmartContract{}
 	assetNewOwner := &assetTransferTransientInput{
 		ID:       "id1",
-		BuyerMSP: myOrg2Msp,
+		BuyerMSP: myBank,
 	}
 	setReturnAssetOwnerInTransientMap(t, chaincodeStub, assetNewOwner)
 	origAsset := chaincode.Asset{
@@ -287,7 +287,7 @@ func TestTransferAssetByNonOwner(t *testing.T) {
 	assetTransferCC := chaincode.SmartContract{}
 	assetNewOwner := &assetTransferTransientInput{
 		ID:       "id1",
-		BuyerMSP: myOrg1Msp,
+		BuyerMSP: myUsers,
 	}
 	setReturnAssetOwnerInTransientMap(t, chaincodeStub, assetNewOwner)
 	// Try to transfer asset owned by Org2
@@ -308,7 +308,7 @@ func TestTransferAssetWithoutAnAgreement(t *testing.T) {
 	assetTransferCC := chaincode.SmartContract{}
 	assetNewOwner := &assetTransferTransientInput{
 		ID:       "id1",
-		BuyerMSP: myOrg1Msp,
+		BuyerMSP: myUsers,
 	}
 	setReturnAssetOwnerInTransientMap(t, chaincodeStub, assetNewOwner)
 	orgAsset := chaincode.Asset{
@@ -334,7 +334,7 @@ func TestTransferAssetNonMatchingAppraisalValue(t *testing.T) {
 	assetTransferCC := chaincode.SmartContract{}
 	assetNewOwner := &assetTransferTransientInput{
 		ID:       "id1",
-		BuyerMSP: myOrg2Msp,
+		BuyerMSP: myBank,
 	}
 	setReturnAssetOwnerInTransientMap(t, chaincodeStub, assetNewOwner)
 
@@ -357,10 +357,10 @@ func TestTransferAssetNonMatchingAppraisalValue(t *testing.T) {
 }
 
 func prepMocksAsOrg1() (*mocks.TransactionContext, *mocks.ChaincodeStub) {
-	return prepMocks(myOrg1Msp, myOrg1Clientid)
+	return prepMocks(myUsers, myOrg1Clientid)
 }
 func prepMocksAsOrg2() (*mocks.TransactionContext, *mocks.ChaincodeStub) {
-	return prepMocks(myOrg2Msp, myOrg2Clientid)
+	return prepMocks(myBank, myOrg2Clientid)
 }
 func prepMocks(orgMSP, clientId string) (*mocks.TransactionContext, *mocks.ChaincodeStub) {
 	chaincodeStub := &mocks.ChaincodeStub{}

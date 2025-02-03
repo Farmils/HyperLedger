@@ -441,7 +441,7 @@ public class ERC721TokenContractTest {
       ClientIdentity ci = null;
       ci = mock(ClientIdentity.class);
       when(ctx.getClientIdentity()).thenReturn(ci);
-      when(ci.getMSPID()).thenReturn("Org1MSP");
+      when(ci.getMSPID()).thenReturn("Users");
       when(ci.getId()).thenReturn("Alice");
       ERC721TokenContract contract = new ERC721TokenContract();
       final NFT response = contract.MintWithTokenURI(ctx, "101", "DummyURI");
@@ -465,7 +465,7 @@ public class ERC721TokenContractTest {
       ClientIdentity ci = null;
       ci = mock(ClientIdentity.class);
       when(ctx.getClientIdentity()).thenReturn(ci);
-      when(ci.getMSPID()).thenReturn("Org1MSP");
+      when(ci.getMSPID()).thenReturn("Users");
       when(ci.getId()).thenReturn("Alice");
       ERC721TokenContract contract = new ERC721TokenContract();
       Throwable thrown =
@@ -496,7 +496,7 @@ public class ERC721TokenContractTest {
       ClientIdentity ci = null;
       ci = mock(ClientIdentity.class);
       when(ctx.getClientIdentity()).thenReturn(ci);
-      when(ci.getMSPID()).thenReturn("Org1MSP");
+      when(ci.getMSPID()).thenReturn("Users");
       when(ci.getId()).thenReturn("Alice");
       ERC721TokenContract contract = new ERC721TokenContract();
       contract.Burn(ctx, "101");

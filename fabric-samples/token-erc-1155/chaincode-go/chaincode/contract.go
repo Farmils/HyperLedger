@@ -21,7 +21,7 @@ const uriKey = "uri"
 const balancePrefix = "account~tokenId~sender"
 const approvalPrefix = "account~operator"
 
-const minterMSPID = "Org1MSP"
+const minterMSPID = "Users"
 
 // Define key names for options
 const nameKey = "name"

@@ -29,29 +29,30 @@ asset owner. In the course of the tutorial, you will use the smart contract
 to complete the following transfer scenario:
 
 - Deploy the SBE smart contract to a channel that was created using the Fabric
-test network. The channel will have two members, Org1 and Org2, that will
-participate in the asset transfer. Each organization operates one peer that
-is joined to the channel.
+  test network. The channel will have two members, Org1 and Org2, that will
+  participate in the asset transfer. Each organization operates one peer that
+  is joined to the channel.
 - Create an asset using the chaincode endorsement policy. The chaincode level
-endorsement policy requires that a majority of organizations on the channel
-endorse a transaction. This means that a transaction that creates an asset
-needs to be endorsed by peers that belong to Org1 and Org2. When the asset is
-created, the smart contract creates a state-based endorsement policy that
-specifies that only the organization that owns that asset may endorse update
-transactions. Because the asset is owned by Org1, any future updates to the asset
-need to be endorsed by the Org1 peer.
+  endorsement policy requires that a majority of organizations on the channel
+  endorse a transaction. This means that a transaction that creates an asset
+  needs to be endorsed by peers that belong to Org1 and Org2. When the asset is
+  created, the smart contract creates a state-based endorsement policy that
+  specifies that only the organization that owns that asset may endorse update
+  transactions. Because the asset is owned by Org1, any future updates to the asset
+  need to be endorsed by the Org1 peer.
 - Update the asset by only endorsing with Org1, this will use the state-based
-endorsement policy applied to the asset when it was created by the chaincode.
+  endorsement policy applied to the asset when it was created by the chaincode.
 - Transfer the asset to Org2. During the execution of the transfer transaction,
-the chaincode will create a new state-based endorsement policy that reflects
-the new asset owner for the asset.
+  the chaincode will create a new state-based endorsement policy that reflects
+  the new asset owner for the asset.
 - Update the asset once more, this time with Org2 as the owner. Because the
-state-based endorsement policy has been updated, this transaction only needs
-to be endorsed by Org2.
+  state-based endorsement policy has been updated, this transaction only needs
+  to be endorsed by Org2.
 
 ## Deploy the smart contract
 
 We are going to run the SBE smart contract using the Fabric test network. Open a command terminal and navigate to test network directory in your local clone of the `fabric-samples`. We will operate from the `test-network` directory for the remainder of the tutorial.
+
 ```
 cd fabric-samples/test-network
 ```
@@ -63,6 +64,7 @@ Run the following command to deploy the test network and create a channel named 
 ```
 
 You can use the test network script to deploy the smart contract to the channel that was just created. The script uses the Fabric chaincode lifecycle to deploy the smart contract to the channel. We will use the default chaincode level endorsement policy used by the Fabric chaincode lifecycle, which requires an endorsement from a majority of channel members. In our case, this will require that both Org1 and Org2 endorse a transaction (2 of 2). Deploy the smart contract to `mychannel` using the following command:
+
 ```
 ./network.sh deployCC -ccn sbe -ccp ../asset-transfer-sbe/chaincode-typescript/ -ccl typescript
 ```
@@ -73,7 +75,7 @@ Set the following environment variables to interact with the network as a user f
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=$PWD/../config/
 export CORE_PEER_TLS_ENABLED=true
-export CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_LOCALMSPID=Users
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp
 export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
 export CORE_PEER_ADDRESS=localhost:7051
@@ -82,80 +84,98 @@ export CORE_PEER_ADDRESS=localhost:7051
 ## Run the transfer scenario
 
 We can now invoke the SBE smart contract to create a new asset:
+
 ```
 peer chaincode invoke -o localhost:7050 --waitForEvent --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n sbe --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CreateAsset","Args":["asset1","100","Org1User1"]}'
 ```
+
 The create transaction needs to target both peers from Org1 and Org2 to meet the chaincode endorsement policy. The chaincode will read the MSP ID of the client user submitting the transaction and assign that organization as the asset owner. As a result, the asset will initially be owned by Org1.
 
 You can query the asset using with the following command:
+
 ```
 peer chaincode query -C mychannel -n sbe -c '{"Args":["ReadAsset","asset1"]}'
 ```
-The result is a new asset owned by Org1, identified using the Org1 MSP ID `Org1MSP`:
-`{"ID":"asset1","Value":100,"Owner":"Org1User1","OwnerOrg":"Org1MSP"}`
+
+The result is a new asset owned by Org1, identified using the Org1 MSP ID `Users`:
+`{"ID":"asset1","Value":100,"Owner":"Org1User1","OwnerOrg":"Users"}`
 
 In addition to creating the asset, the `CreateAsset` function also sets a state-based endorsement policy for the asset. Only a peer of the asset owner, can successfully endorse an asset update. To demonstrate the key-level endorsement policy, lets try to update the asset while targeting the Org2 peer:
+
 ```
 peer chaincode invoke -o localhost:7050 --waitForEvent --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n sbe --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"UpdateAsset","Args":["asset1","200"]}'
 ```
+
 The result is an endorsement policy failure:
+
 ```
 Error: transaction invalidated with status (ENDORSEMENT_POLICY_FAILURE) - proposal response: <nil>
 ```
 
 If we attempt to update the asset with an endorsement from the Org1 peer, the update succeeds:
+
 ```
 peer chaincode invoke -o localhost:7050 --waitForEvent --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n sbe --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c '{"function":"UpdateAsset","Args":["asset1","200"]}'
 ```
+
 You can query the asset one more time to verify that the update was successful:
+
 ```
 peer chaincode query -C mychannel -n sbe -c '{"Args":["ReadAsset","asset1"]}'
 ```
 
 The asset value is now 200:
+
 ```
-{"ID":"asset1","Value":200,"Owner":"Org1User1","OwnerOrg":"Org1MSP"}
+{"ID":"asset1","Value":200,"Owner":"Org1User1","OwnerOrg":"Users"}
 ```
 
 Now that we have tested the asset key-level endorsement policy, we can transfer the asset to Org2. Run the following command to transfer the asset from Org1 to Org2. This time the Org2 MSP ID is provided as a transaction input. The `TransferAsset` function will update the endorsement policy to specify that only a peer of the new owner can update the asset. Note that this command targets the Org1 peer.
 
 ```
-peer chaincode invoke -o localhost:7050 --waitForEvent --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n sbe --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c '{"function":"TransferAsset","Args":["asset1","Org2User1","Org2MSP"]}'
+peer chaincode invoke -o localhost:7050 --waitForEvent --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n sbe --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c '{"function":"TransferAsset","Args":["asset1","Org2User1","Bank"]}'
 ```
 
 We can query the asset to see that the owner has been updated from Org1 to Org2:
+
 ```
 peer chaincode query -C mychannel -n sbe -c '{"Args":["ReadAsset","asset1"]}'
 ```
 
 The owning organization is now Org2:
+
 ```
-{"ID":"asset1","Value":200,"Owner":"Org2User1","OwnerOrg":"Org2MSP"}
+{"ID":"asset1","Value":200,"Owner":"Org2User1","OwnerOrg":"Bank"}
 ```
 
 Org2 now needs to endorse any asset updates. Run the following command to try to update the asset with an endorsement from the Org1 peer:
+
 ```
 peer chaincode invoke -o localhost:7050 --waitForEvent --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n sbe --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c '{"function":"UpdateAsset","Args":["asset1","300"]}'
 ```
 
 The response will be an endorsement policy failure:
+
 ```
 Error: transaction invalidated with status (ENDORSEMENT_POLICY_FAILURE) - proposal response: <nil>
 ```
 
 Now try to update the asset with an endorsement from the Org2 peer:
+
 ```
 peer chaincode invoke -o localhost:7050 --waitForEvent --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n sbe --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"UpdateAsset","Args":["asset1","300"]}'
 ```
 
 You can query the asset again to verify that the transaction update succeeded:
+
 ```
 peer chaincode query -C mychannel -n sbe -c '{"Args":["ReadAsset","asset1"]}'
 ```
 
 The asset value is now 300:
+
 ```
-{"ID":"asset1","Value":300,"Owner":"Org2User1","OwnerOrg":"Org2MSP"}
+{"ID":"asset1","Value":300,"Owner":"Org2User1","OwnerOrg":"Bank"}
 ```
 
 Note that the transaction to update the asset was submitted by a user from Org1, even though the asset was owned by Org2. The transfer enabled by the SBE smart contract is a simple scenario meant only to demonstrate the use of state-based endorsement policies. The smart contract can use access control to specify that an asset can only be updated by its owner. Private data collections can also be used to ensure that transfers need to be endorsed by the owner and recipient of the transfer, instead of just the asset owner. For a more realistic example of an asset transfer scenario, see the [Secured asset transfer in Fabric](https://hyperledger-fabric.readthedocs.io/en/master/secured_asset_transfer/secured_private_asset_transfer_tutorial.html) tutorial.

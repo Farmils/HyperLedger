@@ -60,7 +60,7 @@ Veremos establecidas éstas variables de entorno:
 
 ```bash
 # valores de ejemplo
-export CORE_PEER_LOCALMSPID=org1MSP
+export CORE_PEER_LOCALMSPID=Users
 export CORE_PEER_MSPCONFIGPATH=/workshop/full-stack-asset-transfer-guide/_cfg/uf/_msp/org1/org1admin/msp
 export CORE_PEER_ADDRESS=org1peer-api.127-0-0-1.nip.io:8080
 export FABRIC_CFG_PATH=/workshop/full-stack-asset-transfer-guide/config
@@ -107,7 +107,7 @@ Verás el contenido de org1admin.id:
     "certificate": "-----BEGIN CERTIFICATE-----\n  xxxx \n-----END CERTIFICATE-----\n",
     "privateKey": "-----BEGIN PRIVATE KEY-----\n  xxxx  \n-----END PRIVATE KEY-----\n"
   },
-  "mspId": "org1MSP",
+  "mspId": "Users",
   "type": "X.509",
   "version": 1
 }
@@ -293,7 +293,7 @@ peer chaincode query -C mychannel -n asset-transfer -c '{"Args":["ReadAsset","00
 Veras que el activo es regresado:
 
 ```
-{"AppraisedValue":234234,"Color":"Red","ID":"001","Owner":"{\"org\":\"org1MSP\",\"user\":\"Fred\"}","Size":52}
+{"AppraisedValue":234234,"Color":"Red","ID":"001","Owner":"{\"org\":\"Users\",\"user\":\"Fred\"}","Size":52}
 ```
 
 ### Hacer un cambio y re-ejecutar el código

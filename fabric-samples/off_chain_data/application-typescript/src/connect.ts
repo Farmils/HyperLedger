@@ -5,7 +5,13 @@
  */
 
 import * as grpc from '@grpc/grpc-js';
-import { ConnectOptions, hash, Identity, Signer, signers } from '@hyperledger/fabric-gateway';
+import {
+    ConnectOptions,
+    hash,
+    Identity,
+    Signer,
+    signers,
+} from '@hyperledger/fabric-gateway';
 import * as crypto from 'crypto';
 import { promises as fs } from 'fs';
 import * as path from 'path';
@@ -14,19 +20,55 @@ export const channelName = process.env.CHANNEL_NAME ?? 'mychannel';
 export const chaincodeName = process.env.CHAINCODE_NAME ?? 'basic';
 
 const peerName = 'peer0.org1.example.com';
-const mspId = process.env.MSP_ID ?? 'Org1MSP';
+const mspId = process.env.MSP_ID ?? 'Users';
 
 // Path to crypto materials.
-const cryptoPath = path.resolve(process.env.CRYPTO_PATH ?? path.resolve(__dirname, '..', '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com'));
+const cryptoPath = path.resolve(
+    process.env.CRYPTO_PATH ??
+        path.resolve(
+            __dirname,
+            '..',
+            '..',
+            '..',
+            'test-network',
+            'organizations',
+            'peerOrganizations',
+            'org1.example.com',
+        ),
+);
 
 // Path to user private key directory.
-const keyDirectoryPath = path.resolve(process.env.KEY_DIRECTORY_PATH ?? path.resolve(__dirname, cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore'));
+const keyDirectoryPath = path.resolve(
+    process.env.KEY_DIRECTORY_PATH ??
+        path.resolve(
+            __dirname,
+            cryptoPath,
+            'users',
+            'User1@org1.example.com',
+            'msp',
+            'keystore',
+        ),
+);
 
 // Path to user certificate.
-const certPath = path.resolve(process.env.CERT_PATH ?? path.resolve(__dirname, cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'signcerts', 'cert.pem'));
+const certPath = path.resolve(
+    process.env.CERT_PATH ??
+        path.resolve(
+            __dirname,
+            cryptoPath,
+            'users',
+            'User1@org1.example.com',
+            'msp',
+            'signcerts',
+            'cert.pem',
+        ),
+);
 
 // Path to peer tls certificate.
-const tlsCertPath = path.resolve(process.env.TLS_CERT_PATH ?? path.resolve(__dirname, cryptoPath, 'peers', peerName, 'tls', 'ca.crt'));
+const tlsCertPath = path.resolve(
+    process.env.TLS_CERT_PATH ??
+        path.resolve(__dirname, cryptoPath, 'peers', peerName, 'tls', 'ca.crt'),
+);
 
 // Gateway peer endpoint.
 const peerEndpoint = process.env.PEER_ENDPOINT ?? 'localhost:7051';
@@ -42,7 +84,9 @@ export async function newGrpcConnection(): Promise<grpc.Client> {
     });
 }
 
-export async function newConnectOptions(client: grpc.Client): Promise<ConnectOptions> {
+export async function newConnectOptions(
+    client: grpc.Client,
+): Promise<ConnectOptions> {
     return {
         client,
         identity: await newIdentity(),
@@ -73,7 +117,9 @@ async function newSigner(): Promise<Signer> {
     const keyFiles = await fs.readdir(keyDirectoryPath);
     const keyFile = keyFiles[0];
     if (!keyFile) {
-        throw new Error(`No private key files found in directory ${keyDirectoryPath}`);
+        throw new Error(
+            `No private key files found in directory ${keyDirectoryPath}`,
+        );
     }
     const keyPath = path.resolve(keyDirectoryPath, keyFile);
     const privateKeyPem = await fs.readFile(keyPath);

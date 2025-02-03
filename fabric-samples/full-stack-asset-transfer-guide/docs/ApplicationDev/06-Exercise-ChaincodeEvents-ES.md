@@ -6,17 +6,19 @@ En una nueva ventana de terminal, navega al directorio [applications/trader-type
 Se asume que ya has compilado la aplicación en pasos previos.
 
 1. Si estas utilizando una nueva ventana de terminal, define a las variables de entorno para que apunten a las recursos requeridos por la aplicación.
-    ```bash
-    export ENDPOINT=org1peer-api.127-0-0-1.nip.io:8080
-    export MSP_ID=org1MSP
-    export CERTIFICATE=../../_cfg/uf/_msp/org1/org1admin/msp/signcerts/cert.pem
-    export PRIVATE_KEY=../../_cfg/uf/_msp/org1/org1admin/msp/keystore/cert_sk
-    ```
+
+   ```bash
+   export ENDPOINT=org1peer-api.127-0-0-1.nip.io:8080
+   export MSP_ID=Users
+   export CERTIFICATE=../../_cfg/uf/_msp/org1/org1admin/msp/signcerts/cert.pem
+   export PRIVATE_KEY=../../_cfg/uf/_msp/org1/org1admin/msp/keystore/cert_sk
+   ```
 
 2. Ejecuta el comando **listen** para escuchar las actualizaciones del ledger. El comando listen retornará eventos previos y también esperará por eventos futuros.
-    ```bash
-    npm start listen
-    ```
+
+   ```bash
+   npm start listen
+   ```
 
 3. Una vez que hayas recibido los eventos disponibles, interrumpe la aplicación utilizando `Control-C`.
 
@@ -26,12 +28,13 @@ En la segunda corrida del comando **listen**, deberías haber observado exactame
 
 Implementemos el checkpointing para asegurarnos de que no haya eventos duplicados ni perdidos.
 
-5. Implementa checkpointing para la lectura de eventos de chaincode en [listen.ts](../../applications/trader-typescript/src/commands/listen.ts). Revisa la [documentación de la API de Red](https://hyperledger.github.io/fabric-gateway/main/api/node/interfaces/Network.html) para obtener ideas de como proceder. ¡Asegúrate de marcar los eventos como checkpoint solo *después* de que se hayan procesado con éxito!
+5. Implementa checkpointing para la lectura de eventos de chaincode en [listen.ts](../../applications/trader-typescript/src/commands/listen.ts). Revisa la [documentación de la API de Red](https://hyperledger.github.io/fabric-gateway/main/api/node/interfaces/Network.html) para obtener ideas de como proceder. ¡Asegúrate de marcar los eventos como checkpoint solo _después_ de que se hayan procesado con éxito!
 
 6. Después de asegurarte que tus cambios fueron compilados, ejecuta el comando **listen** con la variable de entorno SIMULATED_FAILURE_COUNT seteada para simular un error aplicativo durante el procesamiento de un evento de chaincode:
-    ```bash
-    SIMULATED_FAILURE_COUNT=3 npm start listen
-    ```
+
+   ```bash
+   SIMULATED_FAILURE_COUNT=3 npm start listen
+   ```
 
 7. Ejecuta el comando **listen** nuevamente. Deberías ver que la escucha de eventos se reanuda desde el mismo evento de chaincode que la aplicación no pudo procesar en la ejecución anterior.
 

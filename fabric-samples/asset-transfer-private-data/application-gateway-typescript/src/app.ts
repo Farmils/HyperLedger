@@ -7,20 +7,31 @@
 import { connect, Contract, hash } from '@hyperledger/fabric-gateway';
 import { TextDecoder } from 'util';
 import {
-    certDirectoryPathOrg1, certDirectoryPathOrg2, keyDirectoryPathOrg1, keyDirectoryPathOrg2, newGrpcConnection, newIdentity,
-    newSigner, peerEndpointOrg1, peerEndpointOrg2, peerNameOrg1, peerNameOrg2, tlsCertPathOrg1, tlsCertPathOrg2
+    certDirectoryPathOrg1,
+    certDirectoryPathOrg2,
+    keyDirectoryPathOrg1,
+    keyDirectoryPathOrg2,
+    newGrpcConnection,
+    newIdentity,
+    newSigner,
+    peerEndpointOrg1,
+    peerEndpointOrg2,
+    peerNameOrg1,
+    peerNameOrg2,
+    tlsCertPathOrg1,
+    tlsCertPathOrg2,
 } from './connect';
 
 const channelName = 'mychannel';
 const chaincodeName = 'private';
-const mspIdOrg1 = 'Org1MSP';
-const mspIdOrg2 = 'Org2MSP';
+const mspIdOrg1 = 'Users';
+const mspIdOrg2 = 'Bank';
 
 const utf8Decoder = new TextDecoder();
 
 // Collection names.
-const org1PrivateCollectionName = 'Org1MSPPrivateCollection';
-const org2PrivateCollectionName = 'Org2MSPPrivateCollection';
+const org1PrivateCollectionName = 'UsersPrivateCollection';
+const org2PrivateCollectionName = 'BankPrivateCollection';
 
 const RED = '\x1b[31m\n';
 const RESET = '\x1b[0m';
@@ -34,7 +45,7 @@ async function main(): Promise<void> {
     const clientOrg1 = await newGrpcConnection(
         tlsCertPathOrg1,
         peerEndpointOrg1,
-        peerNameOrg1
+        peerNameOrg1,
     );
 
     const gatewayOrg1 = connect({
@@ -47,7 +58,7 @@ async function main(): Promise<void> {
     const clientOrg2 = await newGrpcConnection(
         tlsCertPathOrg2,
         peerEndpointOrg2,
-        peerNameOrg2
+        peerNameOrg2,
     );
 
     const gatewayOrg2 = connect({
@@ -78,9 +89,13 @@ async function main(): Promise<void> {
 
         try {
             // Attempt to transfer asset without prior approval from Org2, transaction expected to fail.
-            console.log('\nAttempt TransferAsset without prior AgreeToTransfer');
+            console.log(
+                '\nAttempt TransferAsset without prior AgreeToTransfer',
+            );
             await transferAsset(contractOrg1, assetID1);
-            doFail('TransferAsset transaction succeeded when it was expected to fail');
+            doFail(
+                'TransferAsset transaction succeeded when it was expected to fail',
+            );
         } catch (e) {
             console.log('*** Received expected error:', e);
         }
@@ -105,23 +120,37 @@ async function main(): Promise<void> {
         await readAssetByID(contractOrg1, assetID1);
 
         // Confirm that transfer removed the private details from the Org1 collection.
-        const org1ReadSuccess = await readAssetPrivateDetails(contractOrg1, assetID1, org1PrivateCollectionName);
+        const org1ReadSuccess = await readAssetPrivateDetails(
+            contractOrg1,
+            assetID1,
+            org1PrivateCollectionName,
+        );
         if (org1ReadSuccess) {
-            doFail(`Asset private data still exists in ${org1PrivateCollectionName}`);
+            doFail(
+                `Asset private data still exists in ${org1PrivateCollectionName}`,
+            );
         }
 
         console.log('\n~~~~~~~~~~~~~~~~ As Org2 Client ~~~~~~~~~~~~~~~~');
 
         // Org2 can read asset private details: Org2 is owner, and private details exist in new owner's collection.
-        const org2ReadSuccess = await readAssetPrivateDetails(contractOrg2, assetID1, org2PrivateCollectionName);
+        const org2ReadSuccess = await readAssetPrivateDetails(
+            contractOrg2,
+            assetID1,
+            org2PrivateCollectionName,
+        );
         if (!org2ReadSuccess) {
-            doFail(`Asset private data not found in ${org2PrivateCollectionName}`);
+            doFail(
+                `Asset private data not found in ${org2PrivateCollectionName}`,
+            );
         }
 
         try {
             console.log('\nAttempt DeleteAsset using non-owner organization');
             await deleteAsset(contractOrg2, assetID2);
-            doFail('DeleteAsset transaction succeeded when it was expected to fail');
+            doFail(
+                'DeleteAsset transaction succeeded when it was expected to fail',
+            );
         } catch (e) {
             console.log('*** Received expected error:', e);
         }
@@ -188,12 +217,14 @@ async function createAssets(contract: Contract): Promise<void> {
 
 async function getAssetByRange(contract: Contract): Promise<void> {
     // GetAssetByRange returns assets on the ledger with ID in the range of startKey (inclusive) and endKey (exclusive).
-    console.log(`\n--> Evaluate Transaction: GetAssetByRange from ${org1PrivateCollectionName}`);
+    console.log(
+        `\n--> Evaluate Transaction: GetAssetByRange from ${org1PrivateCollectionName}`,
+    );
 
     const resultBytes = await contract.evaluateTransaction(
         'GetAssetByRange',
         assetID1,
-        `asset${String(now + 2)}`
+        `asset${String(now + 2)}`,
     );
 
     const resultString = utf8Decoder.decode(resultBytes);
@@ -204,9 +235,15 @@ async function getAssetByRange(contract: Contract): Promise<void> {
     console.log('*** Result:', result);
 }
 
-async function readAssetByID(contract: Contract, assetID: string): Promise<void> {
+async function readAssetByID(
+    contract: Contract,
+    assetID: string,
+): Promise<void> {
     console.log(`\n--> Evaluate Transaction: ReadAsset, ID: ${assetID}`);
-    const resultBytes = await contract.evaluateTransaction('ReadAsset', assetID);
+    const resultBytes = await contract.evaluateTransaction(
+        'ReadAsset',
+        assetID,
+    );
 
     const resultString = utf8Decoder.decode(resultBytes);
     if (!resultString) {
@@ -216,12 +253,18 @@ async function readAssetByID(contract: Contract, assetID: string): Promise<void>
     console.log('*** Result:', result);
 }
 
-async function agreeToTransfer(contract: Contract, assetID: string): Promise<void> {
+async function agreeToTransfer(
+    contract: Contract,
+    assetID: string,
+): Promise<void> {
     // Buyer from Org2 agrees to buy the asset.
     // To purchase the asset, the buyer needs to agree to the same value as the asset owner.
 
     const dataForAgreement = { assetID, appraisedValue: 100 };
-    console.log('\n--> Submit Transaction: AgreeToTransfer, payload:', dataForAgreement);
+    console.log(
+        '\n--> Submit Transaction: AgreeToTransfer, payload:',
+        dataForAgreement,
+    );
 
     await contract.submit('AgreeToTransfer', {
         transientData: { asset_value: JSON.stringify(dataForAgreement) },
@@ -230,12 +273,17 @@ async function agreeToTransfer(contract: Contract, assetID: string): Promise<voi
     console.log('*** Transaction committed successfully');
 }
 
-async function readTransferAgreement(contract: Contract, assetID: string): Promise<void> {
-    console.log(`\n--> Evaluate Transaction: ReadTransferAgreement, ID: ${assetID}`);
+async function readTransferAgreement(
+    contract: Contract,
+    assetID: string,
+): Promise<void> {
+    console.log(
+        `\n--> Evaluate Transaction: ReadTransferAgreement, ID: ${assetID}`,
+    );
 
     const resultBytes = await contract.evaluateTransaction(
         'ReadTransferAgreement',
-        assetID
+        assetID,
     );
 
     const resultString = utf8Decoder.decode(resultBytes);
@@ -246,7 +294,10 @@ async function readTransferAgreement(contract: Contract, assetID: string): Promi
     console.log('*** Result:', result);
 }
 
-async function transferAsset(contract: Contract, assetID: string): Promise<void> {
+async function transferAsset(
+    contract: Contract,
+    assetID: string,
+): Promise<void> {
     console.log(`\n--> Submit Transaction: TransferAsset, ID: ${assetID}`);
 
     const buyerDetails = { assetID, buyerMSP: mspIdOrg2 };
@@ -277,13 +328,19 @@ async function purgeAsset(contract: Contract, assetID: string): Promise<void> {
     console.log('*** Transaction committed successfully');
 }
 
-async function readAssetPrivateDetails(contract: Contract, assetID: string, collectionName: string): Promise<boolean> {
-    console.log(`\n--> Evaluate Transaction: ReadAssetPrivateDetails from ${collectionName}, ID: ${assetID}`);
+async function readAssetPrivateDetails(
+    contract: Contract,
+    assetID: string,
+    collectionName: string,
+): Promise<boolean> {
+    console.log(
+        `\n--> Evaluate Transaction: ReadAssetPrivateDetails from ${collectionName}, ID: ${assetID}`,
+    );
 
     const resultBytes = await contract.evaluateTransaction(
         'ReadAssetPrivateDetails',
         collectionName,
-        assetID
+        assetID,
     );
 
     const resultJson = utf8Decoder.decode(resultBytes);

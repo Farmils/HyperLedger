@@ -519,7 +519,7 @@ func (c *TokenERC721Contract) Initialize(ctx contractapi.TransactionContextInter
 	if err != nil {
 		return false, fmt.Errorf("failed to get clientMSPID: %v", err)
 	}
-	if clientMSPID != "Org1MSP" {
+	if clientMSPID != "Users" {
 		return false, errors.New("client is not authorized to set the name and symbol of the token")
 	}
 
@@ -566,7 +566,7 @@ func (c *TokenERC721Contract) MintWithTokenURI(ctx contractapi.TransactionContex
 		return nil, fmt.Errorf("failed to get clientMSPID: %v", err)
 	}
 
-	if clientMSPID != "Org1MSP" {
+	if clientMSPID != "Users" {
 		return nil, errors.New("client is not authorized to set the name and symbol of the token")
 	}
 

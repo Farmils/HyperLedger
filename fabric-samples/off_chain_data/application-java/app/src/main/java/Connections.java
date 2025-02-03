@@ -29,7 +29,7 @@ public final class Connections {
     public static final String CHAINCODE_NAME = Utils.getEnvOrDefault("CHAINCODE_NAME", "basic");
 
     private static final String PEER_NAME = "peer0.org1.example.com";
-    private static final String MSP_ID = Utils.getEnvOrDefault("MSP_ID", "Org1MSP");
+    private static final String MSP_ID = Utils.getEnvOrDefault("MSP_ID", "Users");
 
     // Path to crypto materials.
     private static final Path CRYPTO_PATH = Utils.getEnvOrDefault(

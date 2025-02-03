@@ -28,7 +28,7 @@ const DriverLicenseInProfile =()=>{
             <CardTitle>ID В/У: {licenseInform.ID.toString()}</CardTitle>
                 <CardBody>
                     <CardText>Категория: {licenseInform.Category.toString()}</CardText>
-                    <CardText>Срок действия: {licenseInform.serviceLife.toString()}</CardText>
+                    <CardText>Срок действия: { (licenseInform.serviceLife)}</CardText>
                 </CardBody>
         </Card>)
     }</div>)
