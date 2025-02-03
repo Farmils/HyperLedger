@@ -15,7 +15,7 @@ const DriverLicenseInProfile =()=>{
             }
 
         })()
-    }, [org,userId,licenseId]);
+    }, [org,userId]);
     return (<div  className={"m-4"}>{
         licenseInform.ID === ""?(
             <Card>
@@ -28,7 +28,7 @@ const DriverLicenseInProfile =()=>{
             <CardTitle>ID В/У: {licenseInform.ID.toString()}</CardTitle>
                 <CardBody>
                     <CardText>Категория: {licenseInform.Category.toString()}</CardText>
-                    <CardText>Срок действия: { (licenseInform.serviceLife)}</CardText>
+                    <CardText>Срок действия: { licenseInform.serviceLife.split('T00:00:00.000Z')}</CardText>
                 </CardBody>
         </Card>)
     }</div>)

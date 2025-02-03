@@ -33,23 +33,23 @@ const AddCar = () => {
     }
     return (
         <div style={{width:'25rem'}} >
-            <p className={"text-white fs-4"}>Добавление Транспортного средства</p>
+            <p className={"text-white fs-4 m-3"}>Добавление Транспортного средства</p>
             <Form className={"d-flex flex-column "} onSubmit={submitAddCar}>
                 <FormGroup>
                     <FormLabel className={"text-white"}>Укажите ID Транспортного средства</FormLabel>
-                    <FormControl placeholder={"car1"} type={"text"}></FormControl>
+                    <FormControl placeholder={"ID Т/С"} type={"text"}></FormControl>
                 </FormGroup>
                 <FormGroup>
                     <FormLabel className={"text-white"}>Укажите категорию Транспортного средства</FormLabel>
-                    <FormControl type={"text"} placeholder={"C"}></FormControl>
+                    <FormControl type={"text"} placeholder={"категория Т/С"}></FormControl>
                 </FormGroup>
                 <FormGroup>
                     <FormLabel className={"text-white"}>Укажите рыночную стоимость Транспортного средства</FormLabel>
-                    <FormControl type={"number"} placeholder={"1000000"}></FormControl>
+                    <FormControl type={"number"} placeholder={"рыночная стоимость Т/С"}></FormControl>
                 </FormGroup>
                 <FormGroup>
                     <FormLabel className={"text-white"}>Укажите срок эксплуатации Транспортного средства</FormLabel>
-                    <FormControl type={"data"} placeholder={"10.10.2010"}></FormControl>
+                    <FormControl type={"data"} placeholder={"сколько лет эксплуатируется автомобиль"}></FormControl>
                 </FormGroup>
                 <Button type={"submit"} variant={"success"} className={"m-2 "}>
                     Добавить транспортное средство

@@ -33,9 +33,6 @@ const express = require('express');
  * @description Модуль fabric-ca-client для взаимодействия с сертификационным центром (CA).
  */
 const FabricCAServices = require('fabric-ca-client');
-const { userInfo } = require('os');
-const { log } = require('console');
-const { errorMonitor } = require('stream');
 
 /**
  * Создаём объект приложения.
@@ -55,7 +52,7 @@ app.use(express.json());
  * @description Фреймворк Express.js построен на концепции ПО промежуточного уровня (англ. middleware). Суть этого подхода в том, что запрос к каждому ресурсу обрабатывается не одним единственным действием контролера, а целым стеком функций.
  */
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5174'); // Разрешить запросы только с определённого источника
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // Разрешить запросы только с определённого источника
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT,DELETE'); // Разрешённые методы
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Разрешённые заголовки
 
@@ -67,7 +64,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = 'blockchain2025';
-const chaincodeName = 'set5';
+const chaincodeName = 'end';
 const contractName = 'User';
 const adminUserId = 'admin';
 const adminUserPasswd = 'adminpw';
@@ -95,7 +92,7 @@ function buildCCPOrg(organization) {
             'organizations',
             'peerOrganizations',
             `${organization}.example.com`,
-            `connection-${organization}.json`,
+            `connection-${organization}.json`
         );
         // Считывание connection файла в формате JSON
         const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
@@ -125,7 +122,7 @@ async function buildCAClient(ccp, organization) {
                 trustedRoots: caTLSCACerts,
                 verify: false,
             },
-            caInfo.caName,
+            caInfo.caName
         );
         return caClient;
     } catch (error) {
@@ -244,7 +241,7 @@ async function enrollUser(organization, userId) {
             .getProvider(adminIdentity.type);
         const adminUser = await provider.getUserContext(
             adminIdentity,
-            adminUserId,
+            adminUserId
         );
         let secret;
         try {
@@ -254,7 +251,7 @@ async function enrollUser(organization, userId) {
                     enrollmentID: userId,
                     role: 'client',
                 },
-                adminUser,
+                adminUser
             );
         } catch (error) {
             console.error(`Failed to enroll user ${userId}: ${error}`);
@@ -299,7 +296,7 @@ async function getGateway(organization, userID) {
         if (!identity) {
             console.log(
                 `An identity for the user ${userID} does not exist in the
-  wallet`,
+  wallet`
             );
             console.log('Enroll user before retrying');
             return;
@@ -411,7 +408,7 @@ async function getFunc(contractName, organization, userID, func, args) {
         const result = await contract.evaluateTransaction(func, ...args);
         console.log(
             `Transaction has been evaluated, result is:
-  ${result.toString()}`,
+  ${result.toString()}`
         );
         await gateway.disconnect();
         return result.toString();
@@ -450,7 +447,7 @@ async function registration(
     password,
     startDrive,
     countForfeit,
-    balance,
+    balance
 ) {
     try {
         return await postFunc(
@@ -458,7 +455,7 @@ async function registration(
             organization,
             userID,
             'Registration',
-            [userID, fio, password, startDrive, countForfeit, balance],
+            [userID, fio, password, startDrive, countForfeit, balance]
         );
     } catch (error) {
         const errorMsg = `Failed Registration: ${error}`;
@@ -517,7 +514,7 @@ async function addDriverLicense(
     licenseId,
     serviceLife,
     category,
-    userID,
+    userID
 ) {
     try {
         return await postFunc(
@@ -525,7 +522,7 @@ async function addDriverLicense(
             organization,
             userID,
             'AddDriverLicense',
-            [licenseId, serviceLife, category, userID],
+            [licenseId, serviceLife, category, userID]
         );
     } catch (error) {
         const errorMsg = `Failed to add Driver License, your licenseId ${licenseId} is not in the database. ${error}`;
@@ -539,19 +536,12 @@ async function addDriverLicense(
  */
 async function getDriverLicense(organization, userID, licenseId) {
     try {
-        // const user = await getFunc(
-        // //     contractName,
-        // //     organization,
-        // //     userID,
-        // //     'GetUser',
-        // //     [userID]
-        // // );
         return await getFunc(
             contractName,
             organization,
             userID,
             `GetDriverLicense`,
-            [licenseId],
+            [licenseId]
         );
     } catch (error) {
         const errorMsg = `Failed to get Driver License, license id ${licenseId} is not the database ${error}`;
@@ -583,7 +573,7 @@ async function getLicenseCategory(organization, userID, licenseId) {
             organization,
             userID,
             'GetLicenseCategory',
-            [licenseId],
+            [licenseId]
         );
     } catch (error) {
         const errorMsg = `Failed to get Category your License, because you do not have a license`;
@@ -592,20 +582,6 @@ async function getLicenseCategory(organization, userID, licenseId) {
     }
 }
 
-async function sendForfeit(organization, userID, licenseId) {
-    try {
-        return await postFunc(
-            contractName,
-            organization,
-            userID,
-            'SendForfeit',
-            [licenseId],
-        );
-    } catch (error) {
-        const errorMsg = `Failed to sendForfeit ${error}`;
-        return errorMsg;
-    }
-}
 /**
  * Получениe информации о  зарегистрированном пользователе
  */
@@ -658,7 +634,7 @@ async function addCar(
     carCategory,
     price,
     serviceLife,
-    licenseId,
+    licenseId
 ) {
     try {
         return await postFunc(contractName, organization, userID, 'AddCar', [
@@ -675,38 +651,17 @@ async function addCar(
         return errorMsg;
     }
 }
-/**
- * Асинхронно получает количество конфискаций для заданного адреса пользователя.
- *
- * @async
- * @function GetCountForfeit
- * @param {string} organization - Идентификатор организации.
- * @param {string} userID - Идентификатор пользователя.
- * @returns {Promise<string|number>} - Количество конфискаций или сообщение об ошибке.
- */
-async function GetCountForfeit(organization, userID) {
-    try {
-        return await getFunc(
-            contractName,
-            organization,
-            userID,
-            'GetCountForfeit',
-            [userID],
-        );
-    } catch (error) {
-        const errorMsg = `Ошибка, потому что вы не зарегистрированы в системе`;
-        console.error(errorMsg);
-        return errorMsg;
-    }
-}
 
 async function IssueFine(organization, userID, licenseId) {
     try {
+        console.log(`Пошла жара туц туц`);
         return await postFunc(contractName, organization, userID, 'IssueFine', [
             userID,
             licenseId,
         ]);
     } catch (error) {
+        console.log(`ошибочка`);
+
         const errorMsg = `Не удалось выписать штраф пользователю ${userID}, ${error}`;
         console.error(errorMsg);
         return errorMsg;
@@ -719,27 +674,7 @@ async function PayFine(organization, userID) {
             userID,
         ]);
     } catch (error) {
-        console.log(`Нифига, ищу ошибку`);
         const errorMsg = `Не удалось оплатить штраф, ${error}`;
-        console.error(errorMsg);
-        return errorMsg;
-    }
-}
-
-/**
- * Асинхронно получает срок действия лицензии для заданного адреса пользователя.
- *
- * @async
- * @function GetLicenseLife
- * @param {string} organization - Идентификатор организации.
- * @param {string} userID - Идентификатор пользователя.
- * @returns {Promise<string|number>} - Срок действия лицензии или сообщение об ошибке.
- */
-async function GetLicenseLife(organization, userID) {
-    try {
-        return await getFunc(contractName, organization, userID, [userID]);
-    } catch (error) {
-        const errorMsg = `Ошибка, потому что ваша лицензия не зарегистрирована в системе`;
         console.error(errorMsg);
         return errorMsg;
     }
@@ -755,7 +690,7 @@ async function Authorization(organization, userID) {
             organization,
             userID,
             'Authorization',
-            [userID],
+            [userID]
         );
     } catch (error) {
         const errorMsg = ` Failed you not registration in system, ${error}`;
@@ -770,7 +705,7 @@ async function RenewLicense(organization, userID, licenseId, currentDate) {
             organization,
             userID,
             'RenewLicense',
-            [userID, licenseId, currentDate],
+            [userID, licenseId, currentDate]
         );
     } catch (error) {
         const errorMsg = 'piska lox ${error}';
@@ -808,7 +743,7 @@ app.post('/renewLicense', async (req, res) => {
         organization,
         userID,
         licenseId,
-        currentDate,
+        currentDate
     );
     res.send(result);
 });
@@ -824,11 +759,6 @@ app.get('/getCar', async (req, res) => {
     const result = await getCar(query.organization, query.userID, query.carID);
     res.send(result);
 });
-app.post('/sendForfeit', async (req, res) => {
-    const { organization, userID, licenseId } = req.body;
-    const result = await sendForfeit(organization, userID, licenseId);
-    res.send(result);
-});
 app.post('/issueFine', async (req, res) => {
     const { organization, userID, licenseId } = req.body;
     const result = await IssueFine(organization, userID, licenseId);
@@ -839,7 +769,6 @@ app.post('/payFine', async (req, res) => {
     const result = await PayFine(organization, userID);
     console.log(req.body);
     console.log(result);
-
     res.send(result);
 });
 
@@ -866,7 +795,7 @@ app.post('/addDriverLicense', async (req, res) => {
         Number(licenseId),
         serviceLife,
         category,
-        userID,
+        userID
     );
     console.log(req.body);
     res.send(result);
@@ -888,15 +817,9 @@ app.post('/registration', async (req, res) => {
         password,
         startDrive,
         countForfeit,
-        balance,
+        balance
     );
     console.log(req.body);
-    // console.log(organization);
-    // console.log(userID);
-    // console.log(fio);
-    // console.log(startDrive);
-    // console.log(countForfeit);
-    // console.log(balance);
     res.send(result);
 });
 app.get('/getUser', async (req, res) => {
@@ -910,7 +833,7 @@ app.get('/getDriverLicense', async (req, res) => {
     const result = await getDriverLicense(
         query.organization,
         query.userID,
-        query.licenseId,
+        query.licenseId
     );
     res.send(result);
 });
@@ -919,7 +842,7 @@ app.get('/getLicenseCategory', async (req, res) => {
     const result = await getLicenseCategory(
         query.organization,
         query.userID,
-        query.licenseId,
+        query.licenseId
     );
     res.send(result);
 });
@@ -957,7 +880,7 @@ app.post('/addCar', async (request, response) => {
         carCategory,
         price,
         serviceLife,
-        licenseId,
+        licenseId
     );
     response.send(result);
 });

@@ -71,7 +71,7 @@ class Users extends Contract {
             driverLicense.docType = 'driverLicense';
             await ctx.stub.putState(
                 driverLicense.ID,
-                Buffer.from(JSON.stringify(driverLicense)),
+                Buffer.from(JSON.stringify(driverLicense))
             );
         }
     }
@@ -93,12 +93,12 @@ class Users extends Contract {
         password,
         startDrive,
         countForfeit,
-        balance,
+        balance
     ) {
         const exist = await this.UserExists(ctx, userId);
         if (exist) {
             throw new Error(
-                `Пользователь с таким id: ${userId}, зарегистрирован в системе`,
+                `Пользователь с таким id: ${userId}, зарегистрирован в системе`
             );
         }
         const user = {
@@ -206,7 +206,7 @@ class Users extends Contract {
         carCategory,
         price,
         serviceLife,
-        licenseId,
+        licenseId
     ) {
         const licenseCategory = await this.GetLicenseCategory(ctx, licenseId);
         if (licenseCategory === carCategory) {
@@ -223,8 +223,8 @@ class Users extends Contract {
         }
         throw new Error(
             `Категория вашего В/У, не соответсвует категории Автомобиля: ${JSON.stringify(
-                licenseCategory,
-            )} != ${carCategory}`,
+                licenseCategory
+            )} != ${carCategory}`
         );
     }
     /**
@@ -317,17 +317,19 @@ class Users extends Contract {
 
         if (new Date(currentDate) < renewalThreshold) {
             throw new Error(
-                'Продление возможно не ранее, чем за месяц до истечения срока',
+                'Продление возможно не ранее, чем за месяц до истечения срока'
             );
         }
 
-        expirationDate.setMinutes(expirationDate.getMinutes() + 10 * 365);
+        expirationDate.setMinutes(
+            expirationDate.getMinutes() + 10 * 365 * 1440
+        );
         license.serviceLife = expirationDate.toISOString();
         console.log(expirationDate);
 
         await ctx.stub.putState(
             licenseId,
-            Buffer.from(JSON.stringify(license)),
+            Buffer.from(JSON.stringify(license))
         );
         return 'Срок действия прав продлен';
     }
@@ -342,6 +344,7 @@ class Users extends Contract {
         const driver = JSON.parse(driverJSON.toString());
         const issueDate = new Date().toISOString();
         const fine = { issueDate, amount: 10 };
+        driver.CountForfeit = parseInt(driver.CountForfeit);
         driver.CountForfeit += 1;
         if (!driver.FineDetails) driver.FineDetails = [];
         driver.FineDetails.push(fine);
@@ -371,17 +374,13 @@ class Users extends Contract {
         console.log(typeof fineAmount);
 
         if (user.Balance < fineAmount) throw new Error('Недостаточно средств');
-
         user.Balance -= fineAmount;
         user.FineDetails.shift(); // Удаляем оплаченный штраф
         user.CountForfeit -= 1;
         const bankes = 'bank';
-        console.log(bankes);
-        console.log(Buffer(bankes));
         const bankBytes = await ctx.stub.getState(bankes.toString());
-        console.log(bankBytes);
         console.log(`please`);
-
+        console.log(bankBytes.toString());
         const bank = JSON.parse(bankBytes.toString());
         console.log(`work work please`);
         console.log(bank);
@@ -390,7 +389,7 @@ class Users extends Contract {
         await ctx.stub.putState(userId, Buffer.from(JSON.stringify(user)));
         await ctx.stub.putState(
             bankes.toString(),
-            Buffer.from(JSON.stringify(bank)),
+            Buffer.from(JSON.stringify(bank))
         );
 
         return 'Штраф оплачен. Списано ${fineAmount} ProfiCoin. Остаток: ${user.balance} ProfiCoin';

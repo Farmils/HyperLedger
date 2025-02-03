@@ -28,10 +28,11 @@ const AddDriverLicense = () => {
         category: category,
         userID: userId,
       }),
-    });
+    })
     response.json().then((data) => {
       console.log(data);
     });
+
     setLicenseId(licenseId);
     alert("В/У добавлено")
   };
@@ -51,18 +52,18 @@ const AddDriverLicense = () => {
         <FormGroup>
           <FormControl
             type={"number"}
-            placeholder={"000"}
+            placeholder={"ID В/У"}
           ></FormControl>
         </FormGroup>
         <FormLabel className={"text-white"}>
           Укажите срок действия В/У
         </FormLabel>
         <FormGroup>
-          <FormControl type={"date"} placeholder={"20.10.2035"}></FormControl>
+          <FormControl type={"date"} placeholder={"дата, то которого В/У действительны"}></FormControl>
         </FormGroup>
         <FormLabel className={"text-white"}>Укажите категорию В/У</FormLabel>
         <FormGroup>
-          <FormControl type={"text"} placeholder={"A"}></FormControl>
+          <FormControl type={"text"} placeholder={"категория В/У"}></FormControl>
         </FormGroup>
         <Button type={"submit"} variant={"success"} className={"m-2"}>
           Добавить В/У

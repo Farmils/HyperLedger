@@ -76,9 +76,9 @@ const Registration = ({ handleClose }) => {
           </Form.Group>
           <Form.Group>
             <FormLabel column={1} className={"text-white"}>
-              Укажите дату начала водительского стажа
+              Укажите год начала водительского стажа
             </FormLabel>
-            <Form.Control type={"date"}></Form.Control>
+            <Form.Control type={"number"} placeholder={"Год начало водительского стажа"}></Form.Control>
           </Form.Group>
           <Form.Group>
             <FormLabel column={1} className={"text-white"}>

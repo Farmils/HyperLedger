@@ -17,6 +17,7 @@ const AddForfeit = ()=>{
                 licenseId: licenseId,
             })
         });
+        console.log(org)
         const data = await response.json();
         console.log(data)
     }
@@ -24,13 +25,13 @@ const AddForfeit = ()=>{
         <div style={{margin:"0 auto"}}>
             <Form onSubmit={submitIssueFine}>
                 <p className={"text-white fs-3"}>Добавление штрафа</p>
-                <FormLabel>Укажите ID пользователя</FormLabel>
+                <FormLabel className={"text-white"}>Укажите ID пользователя</FormLabel>
                 <FormGroup>
-                    <FormControl placeholder={"user1"} type={"text"}></FormControl>
+                    <FormControl placeholder={"ID водителя Т/С"} type={"text"}></FormControl>
                 </FormGroup>
-                <FormLabel>Укажите номер В/У пользователя</FormLabel>
+                <FormLabel className={"text-white"}>Укажите номер В/У пользователя</FormLabel>
                 <FormGroup>
-                    <FormControl placeholder={"111"} type={"number"} min={111}></FormControl>
+                    <FormControl placeholder={"ID В/У"} type={"number"} min={"000"}></FormControl>
                 </FormGroup>
                 <Button type={"submit"} variant={"success"} className={"m-3"}>Добавить штраф</Button>
             </Form>
