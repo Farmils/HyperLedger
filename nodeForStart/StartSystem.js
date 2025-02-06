@@ -43,17 +43,15 @@ const BankStart = async () => {
 
 const EnrollIvan = async () => {
   const response = await fetch("http://localhost:7000/enrollUser", {
-    headers: {
-      "Content-type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     method: "POST",
     body: JSON.stringify({
       organization: "org1",
       userId: "ivan",
     }),
   });
-  const data = await response.json();
-  console.log(data);
+  const date = await response.json();
+  console.log(date);
 };
 
 const EnrollPetr = async () => {
@@ -94,7 +92,7 @@ const registrationIvan = async () => {
     method: "POST",
     body: JSON.stringify({
       organization: "org1",
-      userID: "semen",
+      userID: "ivan",
       fio: "Иванов Иван Иванович",
       startDrive: "2023",
       password: "123",
@@ -114,7 +112,7 @@ const registrationPetr = async () => {
     method: "POST",
     body: JSON.stringify({
       organization: "org1",
-      userID: "semen",
+      userID: "petr",
       fio: "Петров Петр Петрович",
       startDrive: "2015",
       password: "123",

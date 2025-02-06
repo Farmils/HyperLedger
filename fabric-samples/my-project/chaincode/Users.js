@@ -3,6 +3,7 @@
  */
 'use strict';
 const { Contract } = require('fabric-contract-api');
+const ProfiCoin = require('./ProfiCoin');
 class Users extends Contract {
     /**
      * Конструктор служит, для объявления названия контракта,

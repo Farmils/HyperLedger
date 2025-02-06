@@ -8,7 +8,13 @@
  * @param {Wallets} Wallets - Кошелёк для связи пользователя с приложением.
  */
 const { Gateway, Wallets } = require('fabric-network');
-// const cors = require("cors");
+const {
+    buildCCPOrg1,
+    buildCCPOrg2,
+    buildWallet,
+} = require('../../test-application/javascript/AppUtil.js');
+
+
 
 /**
  * @module path
@@ -16,23 +22,13 @@ const { Gateway, Wallets } = require('fabric-network');
  */
 const path = require('path');
 
-/**
- * @module fs
- * @description Встроенный модуль fs, который позволяет работать с файловой системой на компьютере.
- */
-const fs = require('fs');
+
 
 /**
  * @module express
  * @description Модуль express для создания веб-приложений.
  */
 const express = require('express');
-
-/**
- * @module FabricCAServices
- * @description Модуль fabric-ca-client для взаимодействия с сертификационным центром (CA).
- */
-const FabricCAServices = require('fabric-ca-client');
 
 /**
  * Создаём объект приложения.
@@ -52,7 +48,7 @@ app.use(express.json());
  * @description Фреймворк Express.js построен на концепции ПО промежуточного уровня (англ. middleware). Суть этого подхода в том, что запрос к каждому ресурсу обрабатывается не одним единственным действием контролера, а целым стеком функций.
  */
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // Разрешить запросы только с определённого источника
+    res.header('Access-Control-Allow-Origin', '*'); // Разрешить запросы только с определённого источника
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT,DELETE'); // Разрешённые методы
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Разрешённые заголовки
 
@@ -65,281 +61,6 @@ app.use((req, res, next) => {
  */
 const channelName = 'blockchain2025';
 const chaincodeName = 'end';
-const contractName = 'User';
-const adminUserId = 'admin';
-const adminUserPasswd = 'adminpw';
-const orgMspIds = {
-    org1: 'Users',
-    org2: 'Bank',
-};
-
-/**
- * Метод buildCCPOrg в Hyperledger Fabric используется для построения и возврата объекта Connection Profile (CCP) для указанной организации.
- * Connection Profile — это JSON-файл, который содержит информацию о сети Hyperledger Fabric, включая сведения о пирах (peers), сертификатах, каналах и других компонентах сети.
- * Этот файл необходим для настройки клиентских приложений, которые взаимодействуют с сетью Hyperledger Fabric.
- * @param {string} organization - Название организации.
- * @returns {Object} ccp - Возвращается вся информация о организации в виде JSON.
- * @throws {Error} Если происходит ошибка при построении CCP.
- */
-function buildCCPOrg(organization) {
-    try {
-        // Путь к connection файлу указанной организации
-        const ccpPath = path.resolve(
-            __dirname,
-            '..',
-            '..',
-            'test-network',
-            'organizations',
-            'peerOrganizations',
-            `${organization}.example.com`,
-            `connection-${organization}.json`
-        );
-        // Считывание connection файла в формате JSON
-        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
-        return ccp;
-    } catch (error) {
-        console.error(`Failed to build CCP: ${error}`);
-        throw new Error(error);
-    }
-}
-
-/**
- * Метод buildCAClient в Hyperledger Fabric используется для создания и возврата клиента Certificate Authority (CA) для указанной организации.
- * Этот клиент необходим для взаимодействия с CA, которая управляет сертификатами и аутентификацией в сети Hyperledger Fabric.
- * @param {Object} ccp - Информация о организации, получаемая из метода "buildCCPOrg".
- * @param {string} organization - Название организации.
- * @returns {Client} caClient - Клиент указанной организации.
- * @throws {Error} Если происходит ошибка при создании клиента CA.
- */
-async function buildCAClient(ccp, organization) {
-    try {
-        const caInfo =
-            ccp.certificateAuthorities[`ca.${organization}.example.com`];
-        const caTLSCACerts = caInfo.tlsCACerts.pem;
-        const caClient = new FabricCAServices(
-            caInfo.url,
-            {
-                trustedRoots: caTLSCACerts,
-                verify: false,
-            },
-            caInfo.caName
-        );
-        return caClient;
-    } catch (error) {
-        console.error(`Failed to build CA client: ${error}`);
-        throw new Error(error);
-    }
-}
-
-/**
- * Метод buildWallet в Hyperledger Fabric используется для создания и возврата экземпляра кошелька (wallet) для указанной организации.
- * Кошелек используется для хранения и управления идентификационными данными пользователей, таких как сертификаты и ключи,
- * которые необходимы для аутентификации и выполнения транзакций в сети Hyperledger Fabric.
- * @param {string} organization - Название организации.
- * @returns {Wallet} wallet - Экземпляр кошелька.
- * @throws {Error} Если происходит ошибка при создании кошелька.
- */
-async function buildWallet(organization) {
-    try {
-        // Путь к wallet папке, в которой хранятся данные созданных аккаунтов организации
-        const walletPath = path.join(process.cwd(), `wallet/${organization}`);
-        const wallet = await Wallets.newFileSystemWallet(walletPath);
-        return wallet;
-    } catch (error) {
-        console.error(`Failed to build wallet: ${error}`);
-        throw new Error(error);
-    }
-}
-
-/**
- * Метод buildX509Identity в Hyperledger Fabric используется для создания и возврата объекта идентификации X.509 на основе данных регистрации (enrollment)
- * и информации об организации. Идентификация X.509 используется для аутентификации пользователей и устройств в сети Hyperledger Fabric.
- * @param {Object} enrollment - Данные регистрации.
- * @param {string} organization - Название организации.
- * @returns {Object} x509Identity - Объект идентификации X.509.
- * @throws {Error} Если происходит ошибка при создании идентификации X.509.
- */
-async function buildX509Identity(enrollment, organization) {
-    try {
-        const x509Identity = {
-            credentials: {
-                certificate: enrollment.certificate,
-                privateKey: enrollment.key.toBytes(),
-            },
-            mspId: orgMspIds[organization],
-            type: 'X.509',
-        };
-        return x509Identity;
-    } catch (error) {
-        console.error(`Failed to build X509 identity: ${error}`);
-        throw new Error(error);
-    }
-}
-
-/**
- * Регистрирует администратора для указанной организации в сети Hyperledger Fabric.
- * @async
- * @function enrollAdmin
- * @param {string} organization - Имя организации, для которой регистрируется администратор.
- * @returns {Promise<string>} Сообщение о результате регистрации администратора.
- * @throws {Error} Если происходит ошибка при регистрации администратора.
- * @example
- * enrollAdmin('org1')
- *   .then(result => console.log(result))
- *   .catch(error => console.error(error));
- */
-async function enrollAdmin(organization) {
-    try {
-        organization = organization.toLowerCase();
-        const ccp = buildCCPOrg(organization);
-        const caClient = await buildCAClient(ccp, organization);
-        const wallet = await buildWallet(organization);
-        if (await wallet.get(adminUserId)) {
-            return 'Admin already exist';
-        }
-        const enrollment = await caClient.enroll({
-            enrollmentID: adminUserId,
-            enrollmentSecret: adminUserPasswd,
-        });
-        const x509Identity = await buildX509Identity(enrollment, organization);
-        await wallet.put(adminUserId, x509Identity);
-        return 'Admin registered';
-    } catch (error) {
-        const errorMsg = `Failed to enroll admin user: ${error}`;
-        console.error(errorMsg);
-        return errorMsg;
-    }
-}
-
-/**
- * Регистрирует пользователя для указанной организации в сети Hyperledger Fabric.
- *
- * @async
- * @function enrollUser
- * @param {string} organization - Имя организации, для которой регистрируется пользователь.
- * @param {string} userId - Идентификатор пользователя.
- * @returns {Promise<string>} Сообщение о результате регистрации пользователя.
- * @throws {Error} Если происходит ошибка при регистрации пользователя.
- *
- * @example
- * enrollUser('org1', 'user1')
- *   .then(result => console.log(result))
- *   .catch(error => console.error(error));
- */
-async function enrollUser(organization, userId) {
-    try {
-        organization = organization.toLowerCase();
-        const ccp = buildCCPOrg(organization);
-        const caClient = await buildCAClient(ccp, organization);
-        const wallet = await buildWallet(organization);
-        if (await wallet.get(userId)) {
-            return `User ${userId} already exist`;
-        }
-        const adminIdentity = await wallet.get(adminUserId);
-        const provider = wallet
-            .getProviderRegistry()
-            .getProvider(adminIdentity.type);
-        const adminUser = await provider.getUserContext(
-            adminIdentity,
-            adminUserId
-        );
-        let secret;
-        try {
-            secret = await caClient.register(
-                {
-                    affiliation: `${organization}.department1`,
-                    enrollmentID: userId,
-                    role: 'client',
-                },
-                adminUser
-            );
-        } catch (error) {
-            console.error(`Failed to enroll user ${userId}: ${error}`);
-            return `User ${userId} already exist`;
-        }
-        const enrollment = await caClient.enroll({
-            enrollmentID: userId,
-            enrollmentSecret: secret,
-        });
-        const x509Identity = await buildX509Identity(enrollment, organization);
-        await wallet.put(userId, x509Identity);
-        return `User ${userId} enrolled`;
-    } catch (error) {
-        const errorMsg = `Failed to enroll user ${userId}: ${error}`;
-        console.error(errorMsg);
-        return errorMsg;
-    }
-}
-
-/**
- * Получает экземпляр шлюза для указанной организации и пользователя.
- *
- * @async
- * @function getGateway
- * @param {string} organization - Имя организации.
- * @param {string} userID - Идентификатор пользователя.
- * @returns {Promise<Gateway>} Экземпляр шлюза.
- * @throws {Error} Если происходит ошибка при подключении к шлюзу.
- *
- * @example
- * getGateway('org1', 'user1')
- *   .then(gateway => console.log(gateway))
- *   .catch(error => console.error(error));
- */
-async function getGateway(organization, userID) {
-    try {
-        organization = organization.toLowerCase();
-        const ccp = buildCCPOrg(organization);
-        const wallet = await buildWallet(organization);
-        // Получение конкретного пользователя по userID
-        const identity = await wallet.get(userID);
-        if (!identity) {
-            console.log(
-                `An identity for the user ${userID} does not exist in the
-  wallet`
-            );
-            console.log('Enroll user before retrying');
-            return;
-        }
-        // Подключение к Fabric с данными пользователя
-        const gateway = new Gateway();
-        await gateway.connect(ccp, {
-            wallet,
-            identity,
-            discovery: { enabled: true, asLocalhost: true },
-        });
-        return gateway;
-    } catch (error) {
-        console.error(`Failed to connect: ${error}`);
-        throw new Error(error);
-    }
-}
-
-/**
- * Получает контракт для указанного шлюза и имени контракта.
- *
- * @async
- * @function getContract
- * @param {Gateway} gateway - Экземпляр шлюза.
- * @param {string} contractName - Имя контракта.
- * @returns {Promise<Contract>} Экземпляр контракта.
- * @throws {Error} Если происходит ошибка при получении контракта.
- *
- * @example
- * getContract(gateway, 'MyContract')
- *   .then(contract => console.log(contract))
- *   .catch(error => console.error(error));
- */
-async function getContract(gateway, contractName) {
-    try {
-        const network = await gateway.getNetwork(channelName);
-        const contract = network.getContract(chaincodeName, contractName);
-        return contract;
-    } catch (error) {
-        console.error(`Failed to get contract: ${error}`);
-        throw new Error(error);
-    }
-}
 
 /**
  * Отправляет транзакцию в сеть Hyperledger Fabric.
@@ -359,29 +80,60 @@ async function getContract(gateway, contractName) {
  *   .then(result => console.log(result))
  *   .catch(error => console.error(error));
  */
-async function postFunc(contractName, organization, userID, func, args) {
-    try {
-        const gateway = await getGateway(organization, userID);
-        console.log(`получили путь`);
+async function postFunc(organization, userID, func, args) {
+    if (organization === 'Org1' || organization === 'org1') {
+        const walletPath = path.join(__dirname, 'wallet/org1');
+        const wallet = await buildWallet(Wallets, walletPath);
+        try {
+            const ccp = buildCCPOrg1();
+            const gateway = new Gateway();
+            const identity = await wallet.get(userID);
 
-        const contract = await getContract(gateway, contractName);
-        console.log(`получили контракт`);
-        // Отправка транзакции
-        const result = await contract.submitTransaction(func, ...args);
-        console.log(`отправили транзакцию`);
+            await gateway.connect(ccp, {
+                wallet: wallet,
+                identity,
+                discovery: { enabled: true, asLocalhost: true },
+            });
 
-        // Обязательно завершаем сессию после завершения операции
-        await gateway.disconnect();
-        console.log(`завершаем сессию`);
+            const network = await gateway.getNetwork(channelName);
+            const contract = network.getContract(chaincodeName);
 
-        // Возвращаем результат выполнения транзации
-        return result.toString();
-        console.log(`возврат результата`);
-    } catch (error) {
-        console.error(`Failed to submit transaction: ${error}`);
-        throw new Error(error);
+            const result = await contract.submitTransaction(func, ...args);
+            console.log(`отправили транзакцию`);
+
+            gateway.disconnect();
+            return result.toString();
+        } catch (error) {
+            console.error(error);
+        }
+    } else {
+        const ccp = buildCCPOrg2();
+        const walletPath = path.join(__dirname, 'wallet/org2');
+        const wallet = await buildWallet(Wallets, walletPath);
+        const identity = await wallet.get(userID);
+        try {
+            const gateway = new Gateway();
+
+            await gateway.connect(ccp, {
+                wallet: wallet,
+                identity,
+                discovery: { enabled: true, asLocalhost: true },
+            });
+
+            const network = await gateway.getNetwork(channelName);
+            const contract = network.getContract(chaincodeName);
+
+            const result = await contract.submitTransaction(func, ...args);
+            console.log(`отправили транзакцию`);
+
+            gateway.disconnect();
+            return result.toString();
+        } catch (error) {
+            console.error(error);
+        }
     }
 }
+
 /**
  * Получает данные из сети Hyperledger Fabric.
  *
@@ -400,23 +152,58 @@ async function postFunc(contractName, organization, userID, func, args) {
  *   .then(result => console.log(result))
  *   .catch(error => console.error(error));
  */
-async function getFunc(contractName, organization, userID, func, args) {
-    try {
-        const gateway = await getGateway(organization, userID);
-        const contract = await getContract(gateway, contractName);
-        // Получаем данные с блокчейна
-        const result = await contract.evaluateTransaction(func, ...args);
-        console.log(
-            `Transaction has been evaluated, result is:
-  ${result.toString()}`
-        );
-        await gateway.disconnect();
-        return result.toString();
-    } catch (error) {
-        console.error(`Failed to evaluate transaction: ${error}`);
-        throw new Error(error);
+async function getFunc(organization, userID, func, args) {
+    if (organization === 'Org1' || organization === 'org1') {
+        const walletPath = path.join(__dirname, 'wallet/org1');
+        const wallet = await buildWallet(Wallets, walletPath);
+        try {
+            const ccp = buildCCPOrg1();
+            const gateway = new Gateway();
+            const identity = await wallet.get(userID);
+
+            await gateway.connect(ccp, {
+                wallet: wallet,
+                identity,
+                discovery: { enabled: true, asLocalhost: true },
+            });
+
+            const network = await gateway.getNetwork(channelName);
+            const contract = network.getContract(chaincodeName);
+
+            const result = await contract.submitTransaction(func, ...args);
+            console.log(`отправили транзакцию`);
+
+            gateway.disconnect();
+            return result.toString();
+        } catch (error) {
+            console.error(error);
+        }
+    } else {
+        const ccp = buildCCPOrg2();
+        const walletPath = path.join(__dirname, 'wallet/org2');
+        const wallet = await buildWallet(Wallets, walletPath);
+        const identity = await wallet.get(userID);
+        await gateway.connect(ccp, {
+            wallet: wallet,
+            identity,
+            discovery: { enabled: true, asLocalhost: true },
+        });
+        try {
+            const network = await gateway.getNetwork(channelName);
+            const contract = network.getContract(chaincodeName);
+            // Получаем данные с блокчейна
+            const result = await contract.evaluateTransaction(func, ...args);
+            console.log(
+                `Transaction has been evaluated, result is:${result.toString()}`
+            );
+            gateway.disconnect();
+            return result.toString();
+        } catch (error) {
+            console.error(error);
+        }
     }
 }
+
 /**
  * @module HyperledgerFabric
  * @description Модуль, в котором объясянется принцип работы с сетью HyperLedger Fabric
@@ -450,13 +237,14 @@ async function registration(
     balance
 ) {
     try {
-        return await postFunc(
-            contractName,
-            organization,
+        return await postFunc(organization, userID, 'Registration', [
             userID,
-            'Registration',
-            [userID, fio, password, startDrive, countForfeit, balance]
-        );
+            fio,
+            password,
+            startDrive,
+            countForfeit,
+            balance,
+        ]);
     } catch (error) {
         const errorMsg = `Failed Registration: ${error}`;
         console.error(errorMsg);
@@ -481,9 +269,7 @@ async function registration(
  */
 async function getUser(organization, userID) {
     try {
-        return await getFunc(contractName, organization, userID, 'UserExists', [
-            userID,
-        ]);
+        return await getFunc(organization, userID, 'UserExists', [userID]);
     } catch (error) {
         const errorMsg = `Failed to get User: ${error}`;
         console.error(errorMsg);
@@ -517,13 +303,12 @@ async function addDriverLicense(
     userID
 ) {
     try {
-        return await postFunc(
-            contractName,
-            organization,
+        return await postFunc(organization, userID, 'AddDriverLicense', [
+            licenseId,
+            serviceLife,
+            category,
             userID,
-            'AddDriverLicense',
-            [licenseId, serviceLife, category, userID]
-        );
+        ]);
     } catch (error) {
         const errorMsg = `Failed to add Driver License, your licenseId ${licenseId} is not in the database. ${error}`;
         console.error(errorMsg);
@@ -536,13 +321,9 @@ async function addDriverLicense(
  */
 async function getDriverLicense(organization, userID, licenseId) {
     try {
-        return await getFunc(
-            contractName,
-            organization,
-            userID,
-            `GetDriverLicense`,
-            [licenseId]
-        );
+        return await getFunc(organization, userID, `GetDriverLicense`, [
+            licenseId,
+        ]);
     } catch (error) {
         const errorMsg = `Failed to get Driver License, license id ${licenseId} is not the database ${error}`;
         console.error(errorMsg);
@@ -568,13 +349,9 @@ async function getDriverLicense(organization, userID, licenseId) {
  */
 async function getLicenseCategory(organization, userID, licenseId) {
     try {
-        return await getFunc(
-            contractName,
-            organization,
-            userID,
-            'GetLicenseCategory',
-            [licenseId]
-        );
+        return await getFunc(organization, userID, 'GetLicenseCategory', [
+            licenseId,
+        ]);
     } catch (error) {
         const errorMsg = `Failed to get Category your License, because you do not have a license`;
         console.error(errorMsg);
@@ -587,9 +364,7 @@ async function getLicenseCategory(organization, userID, licenseId) {
  */
 async function getUser(organization, userID) {
     try {
-        return await getFunc(contractName, organization, userID, 'GetUser', [
-            userID,
-        ]);
+        return await getFunc(organization, userID, 'GetUser', [userID]);
     } catch (error) {
         const errorMsg = ` Вы не зарегистрированы в системе ${error}`;
         console.error(error);
@@ -598,9 +373,7 @@ async function getUser(organization, userID) {
 }
 async function getCar(organization, userID, carID) {
     try {
-        return await getFunc(contractName, organization, userID, 'GetCar', [
-            carID,
-        ]);
+        return await getFunc(organization, userID, 'GetCar', [carID]);
     } catch (error) {
         const errorMsg = `Машина не зарегистрирована в системе ${error}`;
         console.error(error);
@@ -637,7 +410,7 @@ async function addCar(
     licenseId
 ) {
     try {
-        return await postFunc(contractName, organization, userID, 'AddCar', [
+        return await postFunc(organization, userID, 'AddCar', [
             carID,
             userID,
             carCategory,
@@ -655,7 +428,7 @@ async function addCar(
 async function IssueFine(organization, userID, licenseId) {
     try {
         console.log(`Пошла жара туц туц`);
-        return await postFunc(contractName, organization, userID, 'IssueFine', [
+        return await postFunc(organization, userID, 'IssueFine', [
             userID,
             licenseId,
         ]);
@@ -670,9 +443,7 @@ async function IssueFine(organization, userID, licenseId) {
 
 async function PayFine(organization, userID) {
     try {
-        return await postFunc(contractName, organization, userID, 'PayFine', [
-            userID,
-        ]);
+        return await postFunc(organization, userID, 'PayFine', [userID]);
     } catch (error) {
         const errorMsg = `Не удалось оплатить штраф, ${error}`;
         console.error(errorMsg);
@@ -685,13 +456,7 @@ async function PayFine(organization, userID) {
  */
 async function Authorization(organization, userID) {
     try {
-        return await getFunc(
-            contractName,
-            organization,
-            userID,
-            'Authorization',
-            [userID]
-        );
+        return await getFunc(organization, userID, 'Authorization', [userID]);
     } catch (error) {
         const errorMsg = ` Failed you not registration in system, ${error}`;
         console.error(errorMsg);
@@ -700,13 +465,11 @@ async function Authorization(organization, userID) {
 }
 async function RenewLicense(organization, userID, licenseId, currentDate) {
     try {
-        return await postFunc(
-            contractName,
-            organization,
+        return await postFunc(organization, userID, 'RenewLicense', [
             userID,
-            'RenewLicense',
-            [userID, licenseId, currentDate]
-        );
+            licenseId,
+            currentDate,
+        ]);
     } catch (error) {
         const errorMsg = 'piska lox ${error}';
         console.error(errorMsg);
