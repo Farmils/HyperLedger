@@ -14,15 +14,11 @@ const {
     buildWallet,
 } = require('../../test-application/javascript/AppUtil.js');
 
-
-
 /**
  * @module path
  * @description Встроенный модуль path, который предоставляет различные утилиты для работы с файлами и путями в файловой системе.
  */
 const path = require('path');
-
-
 
 /**
  * @module express
@@ -60,7 +56,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = 'blockchain2025';
-const chaincodeName = 'end';
+const chaincodeName = 'popitka4';
 
 /**
  * Отправляет транзакцию в сеть Hyperledger Fabric.

@@ -1,7 +1,7 @@
 :: Поднятие сети и создание канала blockchain2024
 CD .\fabric-samples
 CD .\test-network
-WSL ./network.sh deployCC -ccn end -ccl javascript -ccp ../my-project/chaincode -c blockchain2025 -cci InitLedger
+WSL ./network.sh deployCC -ccn popitka4 -ccl javascript -ccp ../my-project/chaincode -c blockchain2025 -cci InitLedger
 :: Установка зависимостей для приложения, взаимодействующего со смартконтрактом
 pause
 CD ..\my-project\aplication

@@ -3,7 +3,7 @@
  */
 'use strict';
 const { Contract } = require('fabric-contract-api');
-const ProfiCoin = require('./ProfiCoin');
+const { MyToken } = require('./ProfiCoin.js');
 class Users extends Contract {
     /**
      * Конструктор служит, для объявления названия контракта,
@@ -108,9 +108,12 @@ class Users extends Contract {
             Password: password,
             StartDrive: startDrive,
             CountForfeit: countForfeit,
-            Balance: balance,
             licenseId: '',
         };
+        console.log(ctx);
+        MyToken.Mint(ctx, 50);
+        console.log(balance);
+
         const strigifiedUser = JSON.stringify(user);
         await ctx.stub.putState(userId, Buffer.from(strigifiedUser));
         return strigifiedUser;
@@ -376,6 +379,8 @@ class Users extends Contract {
 
         if (user.Balance < fineAmount) throw new Error('Недостаточно средств');
         user.Balance -= fineAmount;
+        MyToken.Transfer(ctx, 'bank', fineAmount);
+        console.log(MyToken.BalanceOf(ctx, userId.toString()));
         user.FineDetails.shift(); // Удаляем оплаченный штраф
         user.CountForfeit -= 1;
         const bankes = 'bank';
