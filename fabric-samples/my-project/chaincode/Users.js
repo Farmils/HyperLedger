@@ -3,7 +3,8 @@
  */
 'use strict';
 const { Contract } = require('fabric-contract-api');
-const { MyToken } = require('./ProfiCoin.js');
+const ProfiCoin = require('./ProfiCoin.js');
+
 class Users extends Contract {
     /**
      * Конструктор служит, для объявления названия контракта,
@@ -75,6 +76,9 @@ class Users extends Contract {
                 Buffer.from(JSON.stringify(driverLicense))
             );
         }
+
+        const token = new ProfiCoin();
+        await token.Initialize(ctx, 'ProfiCoin', 'PROFI', '12');
     }
     /**
      * Метод, для добавления пользователя в систему,
@@ -96,6 +100,7 @@ class Users extends Contract {
         countForfeit,
         balance
     ) {
+        const token = new ProfiCoin();
         const exist = await this.UserExists(ctx, userId);
         if (exist) {
             throw new Error(
@@ -108,12 +113,12 @@ class Users extends Contract {
             Password: password,
             StartDrive: startDrive,
             CountForfeit: countForfeit,
+            Balance: balance,
             licenseId: '',
         };
-        console.log(ctx);
-        MyToken.Mint(ctx, 50);
-        console.log(balance);
-
+        const bal = parseInt(balance);
+        console.log(bal);
+        await token.Mint(ctx, bal * 10 ** 12);
         const strigifiedUser = JSON.stringify(user);
         await ctx.stub.putState(userId, Buffer.from(strigifiedUser));
         return strigifiedUser;
@@ -359,6 +364,7 @@ class Users extends Contract {
 
     // 6.Оплата штрафа с учетом времени выписки
     async PayFine(ctx, userId) {
+        const token = new ProfiCoin();
         const userBytes = await ctx.stub.getState(userId);
         if (!userBytes || userBytes.length === 0)
             throw new Error('Пользователь не найден');
@@ -379,8 +385,7 @@ class Users extends Contract {
 
         if (user.Balance < fineAmount) throw new Error('Недостаточно средств');
         user.Balance -= fineAmount;
-        MyToken.Transfer(ctx, 'bank', fineAmount);
-        console.log(MyToken.BalanceOf(ctx, userId.toString()));
+        await token.Transfer(ctx, 'bank', fineAmount);
         user.FineDetails.shift(); // Удаляем оплаченный штраф
         user.CountForfeit -= 1;
         const bankes = 'bank';

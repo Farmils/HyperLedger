@@ -1,19 +1,18 @@
 'use strict';
-const { Module } = require('module');
 const TokenERC20Contract = require('./tokenERC20.js');
 const balancePrefix = 'balance';
 const totalSupplyKey = 'totalSupply';
-class MyToken extends TokenERC20Contract {
-    async Initialize(ctx) {
-        await super.Initialize(ctx, 'ProfiCoin', 'PROFI', 12);
+class ProfiCoin extends TokenERC20Contract {
+    async Initialize(ctx, name, symbol, decimals) {
+        await super.Initialize(ctx, name, symbol, decimals);
         const initBalances = [
             {
                 userID: 'bank',
-                balance: 1000 * 10 ** 12,
+                balance: 1000 * 10 ** decimals,
             },
             {
                 userID: 'driver',
-                balance: 50 * 10 ** 12,
+                balance: 50 * 10 ** decimals,
             },
         ];
         let totalSupply = 0;
@@ -23,7 +22,7 @@ class MyToken extends TokenERC20Contract {
             ]);
             await ctx.stub.putState(
                 balanceKey,
-                Buffer.from(user.balance, toString())
+                Buffer.from(user.balance.toString())
             );
             totalSupply += user.balance;
         }
@@ -32,8 +31,10 @@ class MyToken extends TokenERC20Contract {
             Buffer.from(totalSupply.toString())
         );
     }
+
     async Mint(ctx, amount) {
         await this.CheckInitialized(ctx);
+        console.log(amount);
         const minter = ctx.clientIdentity
             .getID()
             .split('::')[1]
@@ -70,15 +71,18 @@ class MyToken extends TokenERC20Contract {
             totalSupplyKey,
             Buffer.from(totalSupply.toString())
         );
+        console.log(amountInt);
         const transferEvent = { from: '0x0', to: minter, value, amountInt };
         ctx.stub.setEvent(
             'Transfer',
             Buffer.from(JSON.stringify(transferEvent))
         );
-        console.log(`minter account ${minter} balance
-updated from ${currentBalance} to ${updatedBalance}`);
+        console.log(
+            `minter account ${minter} balance updated from ${currentBalance} to ${updatedBalance}`
+        );
         return true;
     }
+
     async Transfer(ctx, to, value) {
         await this.CheckInitialized(ctx);
         const from = ctx.clientIdentity
@@ -99,4 +103,5 @@ updated from ${currentBalance} to ${updatedBalance}`);
         return true;
     }
 }
-module.exports = MyToken;
+
+module.exports = ProfiCoin;

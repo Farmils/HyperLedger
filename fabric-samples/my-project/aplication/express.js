@@ -56,7 +56,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = 'blockchain2025';
-const chaincodeName = 'popitka4';
+const chaincodeName = 'pis';
 
 /**
  * Отправляет транзакцию в сеть Hyperledger Fabric.
