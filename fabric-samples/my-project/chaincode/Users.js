@@ -391,7 +391,6 @@ class Users extends Contract {
         const bankes = 'bank';
         const bankBytes = await ctx.stub.getState(bankes.toString());
         console.log(`please`);
-        console.log(bankBytes.toString());
         const bank = JSON.parse(bankBytes.toString());
         console.log(`work work please`);
         console.log(bank);

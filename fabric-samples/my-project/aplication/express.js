@@ -46,7 +46,7 @@ app.use(express.json());
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Разрешить запросы только с определённого источника
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT,DELETE'); // Разрешённые методы
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Разрешённые заголовки
+    res.header('Access-Control-Allow-Headers', 'Content-Type'); // Разрешённые заголовки
 
     next(); // Продолжить обработку запроса
 });
@@ -56,7 +56,7 @@ app.use((req, res, next) => {
  * В channelName вводим название канала блокчейна.
  */
 const channelName = 'blockchain2025';
-const chaincodeName = 'pis';
+const chaincodeName = 'End';
 
 /**
  * Отправляет транзакцию в сеть Hyperledger Fabric.
@@ -102,7 +102,7 @@ async function postFunc(organization, userID, func, args) {
         } catch (error) {
             console.error(error);
         }
-    } else {
+    } else if (organization === 'Org2' || organization === 'org2') {
         const ccp = buildCCPOrg2();
         const walletPath = path.join(__dirname, 'wallet/org2');
         const wallet = await buildWallet(Wallets, walletPath);
@@ -166,28 +166,32 @@ async function getFunc(organization, userID, func, args) {
             const network = await gateway.getNetwork(channelName);
             const contract = network.getContract(chaincodeName);
 
-            const result = await contract.submitTransaction(func, ...args);
-            console.log(`отправили транзакцию`);
-
+            const result = await contract.evaluateTransaction(func, ...args);
+            console.log(
+                `Transaction has been evaluated, result is:${result.toString()}`
+            );
             gateway.disconnect();
             return result.toString();
         } catch (error) {
             console.error(error);
         }
-    } else {
-        const ccp = buildCCPOrg2();
+    } else if (organization === 'Org2' || organization === 'org2') {
         const walletPath = path.join(__dirname, 'wallet/org2');
         const wallet = await buildWallet(Wallets, walletPath);
-        const identity = await wallet.get(userID);
-        await gateway.connect(ccp, {
-            wallet: wallet,
-            identity,
-            discovery: { enabled: true, asLocalhost: true },
-        });
         try {
+            const ccp = buildCCPOrg2();
+            const identity = await wallet.get(userID);
+            const gateway = new Gateway();
+
+            await gateway.connect(ccp, {
+                wallet: wallet,
+                identity,
+                discovery: { enabled: true, asLocalhost: true },
+            });
+
             const network = await gateway.getNetwork(channelName);
             const contract = network.getContract(chaincodeName);
-            // Получаем данные с блокчейна
+
             const result = await contract.evaluateTransaction(func, ...args);
             console.log(
                 `Transaction has been evaluated, result is:${result.toString()}`

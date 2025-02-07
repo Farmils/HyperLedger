@@ -72,7 +72,7 @@ class ProfiCoin extends TokenERC20Contract {
             Buffer.from(totalSupply.toString())
         );
         console.log(amountInt);
-        const transferEvent = { from: '0x0', to: minter, value, amountInt };
+        const transferEvent = { from: '0x0', to: minter, value: amountInt };
         ctx.stub.setEvent(
             'Transfer',
             Buffer.from(JSON.stringify(transferEvent))

@@ -3,15 +3,20 @@ import {Context} from "../../../../core/context/Context.jsx";
 import {Card, CardBody, CardText, CardTitle} from "react-bootstrap";
 
 const DriverLicenseInProfile =()=>{
-    const {licenseId,org,userId,setLicenseInform,licenseInform} = useContext(Context);
+    const {org,userId,setLicenseInform,licenseInform} = useContext(Context);
     useEffect(() => {
         (async () => {
-            console.log(licenseId,org,userId)
-            if(licenseId !== ""){
-                const response = await fetch((`http://localhost:7000/getDriverLicense?organization=${org}&userID=${userId}&licenseId=${licenseId}`));
-                const data = await response.json();
-                console.log(data)
-                setLicenseInform(data);
+            const response = await fetch(
+                `http://localhost:7000/getUser?organization=${org}&userID=${userId}`,
+            );
+
+            const data = await response.json();
+            console.log(data);
+            if(data.licenseId !== ""){
+                const response = await fetch((`http://localhost:7000/getDriverLicense?organization=${org}&userID=${userId}&licenseId=${data.licenseId}`));
+                const data2 = await response.json();
+                console.log(data2)
+                setLicenseInform(data2);
             }
 
         })()
