@@ -16,26 +16,31 @@ const AddDriverLicense = () => {
     const licenseId = event.target[0].value;
     const serviceLife = event.target[1].value;
     const category = event.target[2].value;
-    const response = await fetch("http://localhost:7000/addDriverLicense", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-        organization: org,
-        licenseId: licenseId,
-        serviceLife: serviceLife,
-        category: category,
-        userID: userId,
-      }),
-    })
-    response.json().then((data) => {
-      console.log(data);
-    });
+    try{
+      const response = await fetch("http://localhost:7000/addDriverLicense", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          organization: org,
+          licenseId: licenseId,
+          serviceLife: serviceLife,
+          category: category,
+          userID: userId,
+        }),
+      })
+      response.json().then((data) => {
+        console.log(data);
+      });
 
-    setLicenseId(licenseId);
-    alert("В/У добавлено")
-  };
+      setLicenseId(licenseId);
+      alert("В/У добавлено")
+    }
+    catch(error){
+    alert(`Ошибка, повторите позже, ${error}`);
+  }}
+
 
   return (
     <div style={{ width: "25rem",margin:"0 auto" }}>

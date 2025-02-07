@@ -6,10 +6,10 @@ const DriverLicenseInProfile =()=>{
     const {org,userId,setLicenseInform,licenseInform} = useContext(Context);
     useEffect(() => {
         (async () => {
+
             const response = await fetch(
                 `http://localhost:7000/getUser?organization=${org}&userID=${userId}`,
             );
-
             const data = await response.json();
             console.log(data);
             if(data.licenseId !== ""){
@@ -18,7 +18,6 @@ const DriverLicenseInProfile =()=>{
                 console.log(data2)
                 setLicenseInform(data2);
             }
-
         })()
     }, [org,userId]);
     return (<div  className={"m-4"}>{

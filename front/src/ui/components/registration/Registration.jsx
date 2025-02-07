@@ -16,7 +16,7 @@ const Registration = ({ handleClose }) => {
     const password = event.target[4].value;
     const countForfeit = event.target[5].value;
     const balance = event.target[6].value;
-
+  try{
     const response = await fetch("http://localhost:7000/registration", {
       headers: {
         "Content-Type": "application/json",
@@ -41,6 +41,12 @@ const Registration = ({ handleClose }) => {
     nav("/main");
 
     handleClose();
+  }catch (e) {
+    alert(`Не удалось зарегистрироваться, попытайтесь снова, ошибка: #${e}`)
+    handleClose();
+
+  }
+
   };
   return (
     <>

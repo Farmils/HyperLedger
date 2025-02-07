@@ -10,27 +10,32 @@ const AddCar = () => {
         const carCategory = event.target[1].value;
         const price = event.target[2].value;
         const serviceLife = event.target[3].value;
-        const response = await fetch("http://localhost:7000/addCar", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify({
-                organization:org,
-                carID:carId,
-                userID:userId,
-                carCategory:carCategory,
-                price:price,
-                serviceLife:serviceLife,
-                licenseId:licenseId,
+        try {
+            const response = await fetch("http://localhost:7000/addCar", {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({
+                    organization: org,
+                    carID: carId,
+                    userID: userId,
+                    carCategory: carCategory,
+                    price: price,
+                    serviceLife: serviceLife,
+                    licenseId: licenseId,
+                })
             })
-        })
-        const data = await response.json()
-        console.log(data)
-        setCarInform(data);
-        setCarId(carId);
-        alert(`Т/С добавлено`)
+            const data = await response.json()
+            console.log(data)
+            setCarInform(data);
+            setCarId(carId);
+            alert(`Т/С добавлено`)
+        } catch (e) {
+            alert(`Ошибка, повторите позже ${e}`);
+        }
     }
+
     return (
         <div style={{width:'25rem'}} >
             <p className={"text-white fs-4 m-3"}>Добавление Транспортного средства</p>

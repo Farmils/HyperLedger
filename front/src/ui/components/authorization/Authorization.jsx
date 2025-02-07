@@ -21,21 +21,26 @@ const Authorization = ({ handleClose }) => {
     const password = event.target[2].value;
     const toPolice = event.target[3].checked;
     console.log(organization, userId,password,toPolice);
-    const response = await fetch(
-      `http://localhost:7000/authorization?organization=${organization}&userID=${userId}`,
-    );
-    const data = await response.json();
-    console.log(data);
-    if (data.id === userId && data.password === password ) {
-      nav("/");
-      setUserId(userId);
-      setOrg(organization);
-    } else {
-      throw new Error(`Вы не зарегистрированы в системе`);
+    try{
+      const response = await fetch(
+          `http://localhost:7000/authorization?organization=${organization}&userID=${userId}`,
+      );
+      const data = await response.json();
+      console.log(data);
+      if (data.id === userId && data.password === password ) {
+        nav("/");
+        setUserId(userId);
+        setOrg(organization);
+      }
+      setToPolice(toPolice);
+      nav("/main");
+      handleClose();
+
+    }catch (e){
+      alert(`Не удалось авторизоваться, повторите попытку`)
+      handleClose();
     }
-    setToPolice(toPolice);
-    nav("/main");
-    handleClose();
+
   };
 
   return (

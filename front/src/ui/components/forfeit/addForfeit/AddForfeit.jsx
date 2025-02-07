@@ -8,18 +8,25 @@ const AddForfeit = ()=>{
         event.preventDefault()
         const userId = event.target[0].value;
         const licenseId = event.target[1].value;
-        const response = await fetch("http://localhost:7000/issueFine",{
-            headers:{"Content-Type": "application/json",},
-            method:"POST",
-            body:JSON.stringify({
-                organization:org,
-                userID:userId,
-                licenseId: licenseId,
-            })
-        });
-        console.log(org)
-        const data = await response.json();
-        console.log(data)
+        try {
+            const response = await fetch("http://localhost:7000/issueFine",{
+                headers:{"Content-Type": "application/json",},
+                method:"POST",
+                body:JSON.stringify({
+                    organization:org,
+                    userID:userId,
+                    licenseId: licenseId,
+                })
+            });
+            console.log(org)
+            const data = await response.json();
+            console.log(data)
+            alert(`Штраф успешно выписан`);
+
+        }catch (e){
+            alert(`Не удалось выписать штраф, повторите попытку ${e}`)
+        }
+
     }
     return(
         <div style={{margin:"0 auto"}}>
